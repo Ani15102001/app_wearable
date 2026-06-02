@@ -25,76 +25,6 @@ st.markdown("""
 <style>
 
 /* ============================================================
-   METRIC SELECTION PAGE
-   ============================================================ */
-
-.metric-selection-card {
-    background: #FFFFFF;
-    border: 1px solid #DDE6DA;
-    border-radius: 26px;
-    padding: 28px 24px;
-    height: 300px;
-    box-shadow: 0 10px 28px rgba(15, 40, 30, 0.08);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    display: flex;
-    flex-direction: column;
-}
-
-.metric-selection-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 16px 36px rgba(15, 40, 30, 0.14);
-}
-
-.metric-icon {
-    width: 54px;
-    height: 54px;
-    border-radius: 18px;
-    background: #EAF4EC;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 28px;
-    margin-bottom: 16px;
-}
-
-.metric-selection-title {
-    font-size: 24px;
-    font-weight: 900;
-    color: #0B3D2E;
-    margin-bottom: 10px;
-}
-
-.metric-selection-text {
-    font-size: 15px;
-    color: #4B5563;
-    line-height: 1.55;
-    flex-grow: 1;
-}
-
-.metric-status-ready {
-    display: inline-block;
-    margin-top: auto;
-    background: #EAF4EC;
-    color: #0B3D2E;
-    border-radius: 999px;
-    padding: 7px 13px;
-    font-size: 13px;
-    font-weight: 800;
-    width: fit-content;
-}
-
-.metric-status-coming {
-    display: inline-block;
-    margin-top: auto;
-    background: #F1F5F9;
-    color: #64748B;
-    border-radius: 999px;
-    padding: 7px 13px;
-    font-size: 13px;
-    font-weight: 800;
-    width: fit-content;
-}
-/* ============================================================
    INTEGRATED INTERPRETATION PROFESSIONAL DASHBOARD
    ============================================================ */
 
@@ -257,9 +187,7 @@ st.markdown("""
     border-radius: 24px;
     padding: 24px;
     box-shadow: 0 8px 24px rgba(15, 40, 30, 0.08);
-    height: 210px;
-    display: flex;
-    flex-direction: column;
+    height: 100%;
 }
 .card-title {
     font-size: 21px;
@@ -271,7 +199,6 @@ st.markdown("""
     font-size: 15px;
     color: #4B5563;
     line-height: 1.55;
-    flex-grow: 1;
 }
 .big-number {
     font-size: 38px;
@@ -426,8 +353,8 @@ st.markdown("""
     min-height: 320px;
 }
 .athlete-photo-wrap {
-    width: 175px;
-    height: 175px;
+    width: 145px;
+    height: 145px;
     border-radius: 50%;
     overflow: hidden;
     margin: 0 auto 18px auto;
@@ -444,7 +371,6 @@ st.markdown("""
     object-fit: cover;
     object-position: center;
     display: block;
-    transform: scale(1.22);
 }
 .athlete-name {
     font-size: 22px;
@@ -476,30 +402,6 @@ st.markdown("""
     font-weight: 800;
     box-shadow: 0 8px 20px rgba(15, 40, 30, 0.18);
 }
-/* ============================================================
-   DOWNLOAD BUTTON VISIBILITY FIX
-   ============================================================ */
-
-div[data-testid="stDownloadButton"] > button {
-    background: linear-gradient(135deg, #0B57D0 0%, #2563EB 100%) !important;
-    color: #FFFFFF !important;
-    border: none !important;
-    border-radius: 16px !important;
-    padding: 0.75rem 1.1rem !important;
-    font-weight: 850 !important;
-    box-shadow: 0 8px 20px rgba(11, 87, 208, 0.22) !important;
-}
-
-div[data-testid="stDownloadButton"] > button * {
-    color: #FFFFFF !important;
-    font-weight: 850 !important;
-}
-
-div[data-testid="stDownloadButton"] > button:hover {
-    background: linear-gradient(135deg, #0847A6 0%, #1D4ED8 100%) !important;
-    color: #FFFFFF !important;
-    transform: translateY(-1px);
-}
 section[data-testid="stSidebar"] {
     background-color: #0B3D2E;
 }
@@ -507,48 +409,6 @@ section[data-testid="stSidebar"] * {
     color: white !important;
 }
 
-/* ============================================================
-   FILE UPLOADER VISIBILITY FIX
-   ============================================================ */
-
-div[data-testid="stFileUploader"] {
-    background: #FFFFFF !important;
-    border: 1px solid #DDE6DA !important;
-    border-radius: 16px !important;
-    padding: 14px !important;
-}
-
-div[data-testid="stFileUploader"] section {
-    background: #F7FAFF !important;
-    border: 1.5px dashed #0B57D0 !important;
-    border-radius: 16px !important;
-}
-
-div[data-testid="stFileUploader"] button {
-    background: linear-gradient(135deg, #0B57D0 0%, #2563EB 100%) !important;
-    color: #FFFFFF !important;
-    border: none !important;
-    border-radius: 14px !important;
-    font-weight: 850 !important;
-    padding: 0.65rem 1rem !important;
-}
-
-div[data-testid="stFileUploader"] button * {
-    color: #FFFFFF !important;
-    font-weight: 850 !important;
-}
-
-div[data-testid="stFileUploader"] small,
-div[data-testid="stFileUploader"] span,
-div[data-testid="stFileUploader"] p {
-    color: #07184A !important;
-    font-weight: 650 !important;
-}
-
-div[data-testid="stFileUploader"] svg {
-    color: #FFFFFF !important;
-    fill: #FFFFFF !important;
-}
 /* ============================================================
    SIDEBAR NAVIGATION WHITE TEXT FIX
    ============================================================ */
@@ -840,9 +700,7 @@ def select_athlete(athlete):
 def select_metric(metric_name):
     st.session_state.selected_metric = metric_name
     st.rerun()
-def go_to_page(page_name):
-    st.session_state.pending_page = page_name
-    st.rerun()
+
 def render_coach_athlete_roster():
     athletes = get_athletes_for_club(st.session_state.user_club)
 
@@ -2729,29 +2587,11 @@ if st.sidebar.button("Logout"):
 
 st.sidebar.markdown("---")
 
-PAGES = ["Home", "Session Analysis", "Metrics Explanation"]
-
-if "page" not in st.session_state:
-    st.session_state.page = "Home"
-
-# If a button asked to change page, apply it BEFORE creating the sidebar widget
-if "pending_page" in st.session_state:
-    st.session_state.page = st.session_state.pending_page
-    del st.session_state.pending_page
-
-# Keep sidebar radio synchronized BEFORE the widget is created
-if "sidebar_navigation" not in st.session_state:
-    st.session_state.sidebar_navigation = st.session_state.page
-else:
-    st.session_state.sidebar_navigation = st.session_state.page
-
-st.sidebar.radio(
+page = st.sidebar.radio(
     "Navigation",
-    PAGES,
-    key="sidebar_navigation"
+    ["Home", "Session Analysis", "Metrics Explanation"]
 )
 
-st.session_state.page = st.session_state.sidebar_navigation
 st.sidebar.markdown("---")
 
 fs = st.sidebar.selectbox(
@@ -2790,7 +2630,7 @@ st.sidebar.caption("Suggested setup: 120 Hz, club 10 Hz, sacral 6 Hz.")
 # HOME PAGE
 # ============================================================
 
-if st.session_state.page == "Home":
+if page == "Home":
 
     st.markdown("""
     <div class="hero">
@@ -2828,69 +2668,45 @@ if st.session_state.page == "Home":
         </div>
         """, unsafe_allow_html=True)
 
-    st.markdown('<div class="section-title">Training Session Workflow</div>', unsafe_allow_html=True)
-
-    st.markdown("""
-    <div class="section-subtitle">
-    The app follows a simple three-step workflow: upload the sensor data, analyse the swing performance,
-    and receive an integrated interpretation with practical feedback.
-    </div>
-    """, unsafe_allow_html=True)
+    st.markdown('<div class="section-title">Validation Metrics by Session</div>', unsafe_allow_html=True)
 
     c1, c2, c3 = st.columns(3)
 
     with c1:
         st.markdown("""
-    <div class="metric-selection-card">
-    <div class="metric-icon">📤</div>
-    <div class="metric-selection-title">1. Upload Data</div>
-    <div class="metric-selection-text">
-    Import the data collected during the training session from the club IMU, body IMU and HR/HRV sensor.
-    This allows the app to combine technical movement data with physiological information.
-    </div>
-    <div class="metric-status-ready">Input phase</div>
-    </div>
-    """, unsafe_allow_html=True)
+        <div class="card">
+            <div class="card-title">Session 01 — Baseline Training</div>
+            <div class="card-text">
+                First reference session used to understand the athlete’s normal rhythm and coordination.
+            </div>
+            <div class="big-number">1</div>
+            <p>Rhythm · Repeatability · HR/HRV</p>
+        </div>
+        """, unsafe_allow_html=True)
 
     with c2:
         st.markdown("""
-    <div class="metric-selection-card">
-    <div class="metric-icon">📊</div>
-    <div class="metric-selection-title">2. Analyse Performance</div>
-    <div class="metric-selection-text">
-    The app calculates key indicators such as Tempo Ratio, body–club delay Δt, repeatability through CV,
-    heart rate and HRV/RMSSD.
-    </div>
-    <div class="metric-status-ready">Analysis phase</div>
-    </div>
-    """, unsafe_allow_html=True)
+        <div class="card">
+            <div class="card-title">Session 02 — Repeated Swings</div>
+            <div class="card-text">
+                Evaluation of rhythm consistency across multiple shots and body–club timing.
+            </div>
+            <div class="big-number">2</div>
+            <p>Tempo Ratio · Δt · CV</p>
+        </div>
+        """, unsafe_allow_html=True)
 
     with c3:
         st.markdown("""
-    <div class="metric-selection-card">
-    <div class="metric-icon">💡</div>
-    <div class="metric-selection-title">3. Receive Interpretation</div>
-    <div class="metric-selection-text">
-    The final output combines technical and physiological information to explain how the session went
-    and provide swing-by-swing recommendations.
-    </div>
-    <div class="metric-status-ready">Feedback phase</div>
-    </div>
-    """, unsafe_allow_html=True)
-    st.markdown("---")
-    st.markdown('<div class="section-title">Quick access</div>', unsafe_allow_html=True)
-
-    q1, q2 = st.columns(2)
-
-    with q1:
-        if st.button("Start Session Analysis", use_container_width=True):
-            st.session_state.pending_page = "Session Analysis"
-            st.rerun()
-
-    with q2:
-        if st.button("Open Metrics Explanation", use_container_width=True):
-            st.session_state.pending_page = "Metrics Explanation"
-            st.rerun()
+        <div class="card">
+            <div class="card-title">Session 03 — Physiological Context</div>
+            <div class="card-text">
+                Analysis of whether rhythm and repeatability change under different physiological states.
+            </div>
+            <div class="big-number">3</div>
+            <p>HR · HRV · Interpretation</p>
+        </div>
+        """, unsafe_allow_html=True)
 
     st.markdown("---")
     st.markdown('<div class="section-title">What the app adds</div>', unsafe_allow_html=True)
@@ -2932,7 +2748,7 @@ if st.session_state.page == "Home":
 # SESSION ANALYSIS PAGE
 # ============================================================
 
-elif st.session_state.page == "Session Analysis":
+elif page == "Session Analysis":
 
     st.markdown("""
     <div class="hero">
@@ -2943,8 +2759,7 @@ elif st.session_state.page == "Session Analysis":
         </div>
     </div>
     """, unsafe_allow_html=True)
-    if st.button("← Back to Home", key="back_home_from_session"):
-        go_to_page("Home")
+
     if st.session_state.user_role == "Coach" and not st.session_state.selected_athlete_name:
         st.warning("Please select an athlete from the Home page before opening the session analysis.")
         st.stop()
@@ -2954,62 +2769,58 @@ elif st.session_state.page == "Session Analysis":
         <b>Current athlete:</b> {st.session_state.selected_athlete_name}
     </div>
     """, unsafe_allow_html=True)
-    
 
 
-    st.markdown('<div class="section-title">Choose the performance area to analyse</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-title">Select the metric to analyse</div>', unsafe_allow_html=True)
 
     st.markdown("""
-<div class="section-subtitle">
-Select the training dimension you want to explore. Each area focuses on a different aspect of the swing and athlete performance.
-</div>
-""", unsafe_allow_html=True)
+    <div class="section-subtitle">
+        Choose which performance dimension you want to open. 
+        The Rhythm section contains the complete analysis currently available in the app.
+    </div>
+    """, unsafe_allow_html=True)
 
     mcol1, mcol2, mcol3 = st.columns(3)
 
     with mcol1:
         st.markdown("""
-<div class="metric-selection-card">
-<div class="metric-icon">⏱️</div>
-<div class="metric-selection-title">Rhythm</div>
-<div class="metric-selection-text">
-Analyse swing timing, Tempo Ratio, repeatability across the five swings, body–club timing delay and physiological context.
-</div>
-<div class="metric-status-ready">Available now</div>
-</div>
-""", unsafe_allow_html=True)
+        <div class="card">
+            <div class="card-title">Ritmo</div>
+            <div class="card-text">
+                Analyse swing timing, tempo ratio, repeatability across the five swings,
+                body–club timing delay and physiological context.
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
 
-        if st.button("Open Rhythm analysis", use_container_width=True):
+        if st.button("Open Ritmo analysis", use_container_width=True):
             select_metric("Ritmo")
 
     with mcol2:
         st.markdown("""
-<div class="metric-selection-card">
-<div class="metric-icon">🧍</div>
-<div class="metric-selection-title">Stability</div>
-<div class="metric-selection-text">
-Future section dedicated to trunk stability, body control, postural consistency and movement repeatability during the swing.
-</div>
-<div class="metric-status-coming">Coming soon</div>
-</div>
-""", unsafe_allow_html=True)
+        <div class="card">
+            <div class="card-title">Stabilità</div>
+            <div class="card-text">
+                Future section dedicated to trunk stability, body control and movement consistency.
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
 
-        if st.button("Open Stability analysis", use_container_width=True):
+        if st.button("Open Stabilità analysis", use_container_width=True):
             select_metric("Stabilità")
 
     with mcol3:
         st.markdown("""
-<div class="metric-selection-card">
-<div class="metric-icon">⚡</div>
-<div class="metric-selection-title">Power</div>
-<div class="metric-selection-text">
-Future section dedicated to acceleration intensity, force-related indicators and power expression during the swing.
-</div>
-<div class="metric-status-coming">Coming soon</div>
-</div>
-""", unsafe_allow_html=True)
+        <div class="card">
+            <div class="card-title">Forza</div>
+            <div class="card-text">
+                Future section dedicated to acceleration intensity, force-related indicators
+                and power expression during the swing.
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
 
-        if st.button("Open Power analysis", use_container_width=True):
+        if st.button("Open Forza analysis", use_container_width=True):
             select_metric("Forza")
 
     st.markdown("---")
@@ -3032,115 +2843,76 @@ Future section dedicated to acceleration intensity, force-related indicators and
 
         st.stop()
 
-    if st.button("← Back to performance areas", key="back_to_metric_selection"):
+    if st.button("← Back to metric selection"):
         st.session_state.selected_metric = None
         st.rerun()
 
     st.markdown('<div class="section-title">Ritmo Analysis</div>', unsafe_allow_html=True)
 
 
-    session_name = st.selectbox(
-        "Select session",
-        ["Session 1", "Session 2", "Session 3"],
-        key="session_selectbox_rhythm"
-    )
+    session_name = st.selectbox("Select session", ["Session 1", "Session 2", "Session 3"])
 
-    data_source = st.radio(
-        "Select data source",
-        ["Upload files manually", "Use preloaded data for selected session"],
-        horizontal=True,
-        key="data_source_selector"
-    )
 
-    club_file = None
-    sacral_file = None
-    hr_file = None
+    
 
-    if data_source == "Upload files manually":
+data_source = st.radio(
+    "Select data source",
+    ["Upload files manually", "Use preloaded Session 1 data"],
+    horizontal=True
+)
+if data_source == "Upload files manually":
+    u1, u2, u3 = st.columns(3)
 
-        u1, u2, u3 = st.columns(3)
+    with u1:
+        st.markdown("""
+        <div class="upload-card">
+            <div class="upload-title">Club Motion</div>
+            <div class="upload-icon">🏌️</div>
+            <div class="upload-description">
+                Upload the <b>club-mounted IMU</b> file, for example <b>A4_prima.csv</b>.
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
 
-        with u1:
-            st.markdown("""
-<div class="upload-card">
-<div class="upload-title">Club Motion</div>
-<div class="upload-icon">🏌️</div>
-<div class="upload-description">
-Upload the <b>club-mounted IMU</b> file, for example <b>A4_prima.csv</b>.
-</div>
-</div>
-""", unsafe_allow_html=True)
+        club_file = st.file_uploader(
+            "Upload Club IMU file",
+            type=["csv", "xlsx", "xls", "bin"],
+            key="club_file"
+        )
 
-            club_file = st.file_uploader(
-                "Upload Club IMU file",
-                type=["csv", "xlsx", "xls", "bin"],
-                key="club_file"
-            )
+    with u2:
+        st.markdown("""
+        <div class="upload-card">
+            <div class="upload-title">Body Motion</div>
+            <div class="upload-icon">🧍</div>
+            <div class="upload-description">
+                Upload the <b>sacral IMU</b> file, for example <b>A5_prima.csv</b>.
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
 
-        with u2:
-            st.markdown("""
-<div class="upload-card">
-<div class="upload-title">Body Motion</div>
-<div class="upload-icon">🧍</div>
-<div class="upload-description">
-Upload the <b>sacral IMU</b> file, for example <b>A5_prima.csv</b>.
-</div>
-</div>
-""", unsafe_allow_html=True)
+        sacral_file = st.file_uploader(
+            "Upload Sacral IMU file",
+            type=["csv", "xlsx", "xls"],
+            key="sacral_file"
+        )
 
-            sacral_file = st.file_uploader(
-                "Upload Sacral IMU file",
-                type=["csv", "xlsx", "xls"],
-                key="sacral_file"
-            )
+    with u3:
+        st.markdown("""
+        <div class="upload-card">
+            <div class="upload-title">Physiological State</div>
+            <div class="upload-icon">❤️</div>
+            <div class="upload-description">
+                Optional: upload an <b>HR/HRV</b> file to add physiological context.
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
 
-        with u3:
-            st.markdown("""
-<div class="upload-card">
-<div class="upload-title">Physiological State</div>
-<div class="upload-icon">❤️</div>
-<div class="upload-description">
-Optional: upload an <b>HR/HRV</b> file to add physiological context.
-</div>
-</div>
-""", unsafe_allow_html=True)
-
-            hr_file = st.file_uploader(
-                "Upload HR/HRV file",
-                type=["csv", "xlsx", "xls", "bin"],
-                key="hr_file"
-            )
-
-    else:
-        if session_name == "Session 1":
-            club_file = "data/A4_prima.csv"
-            sacral_file = "data/A5_prima.csv"
-            hr_file = "data/SignalsSave_051358.bin"
-
-        elif session_name == "Session 2":
-            club_file = "data/A4_dopo.csv"
-            sacral_file = "data/A5_dopo.csv"
-            hr_file = "data/SignalsSave_052232.bin"
-
-        else:
-            club_file = None
-            sacral_file = None
-            hr_file = None
-
-            st.warning(
-                "Preloaded data are currently available only for Session 1 and Session 2."
-            )
-
-        if club_file is not None and sacral_file is not None:
-            st.markdown(f"""
-<div class="formula-box">
-<b>Preloaded {session_name} data selected.</b><br>
-The app is using the local files:<br>
-Club IMU: <b>{club_file}</b><br>
-Body IMU: <b>{sacral_file}</b><br>
-HR/ECG: <b>{hr_file}</b>
-</div>
-""", unsafe_allow_html=True)
+        hr_file = st.file_uploader(
+            "Upload HR/HRV file",
+            type=["csv", "xlsx", "xls", "bin"],
+            key="hr_file"
+        )
 
     st.markdown("---")
 
@@ -3913,7 +3685,7 @@ HR/ECG: <b>{hr_file}</b>
 # METRICS EXPLANATION PAGE
 # ============================================================
 
-elif st.session_state.page == "Metrics Explanation":
+elif page == "Metrics Explanation":
 
     st.markdown("""
     <div class="hero">
@@ -3924,8 +3696,6 @@ elif st.session_state.page == "Metrics Explanation":
         </div>
     </div>
     """, unsafe_allow_html=True)
-    if st.button("← Back to Home", key="back_home_from_metrics"):
-        go_to_page("Home")
 
     st.markdown('<div class="section-title">1. Tempo Ratio</div>', unsafe_allow_html=True)
     st.markdown("""
