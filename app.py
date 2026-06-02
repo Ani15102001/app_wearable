@@ -426,8 +426,8 @@ st.markdown("""
     min-height: 320px;
 }
 .athlete-photo-wrap {
-    width: 175px;
-    height: 175px;
+    width: 185px;
+    height: 185px;
     border-radius: 50%;
     overflow: hidden;
     margin: 0 auto 18px auto;
@@ -442,9 +442,9 @@ st.markdown("""
     width: 100%;
     height: 100%;
     object-fit: cover;
-    object-position: center;
+    object-position: center 35%;
     display: block;
-    transform: scale(1.22);
+    transform: scale(1.32);
 }
 .athlete-name {
     font-size: 22px;
@@ -802,7 +802,7 @@ ATHLETES_DB = [
         "name": "Anita",
         "club": "Milano Golf Club",
         "level": "Professional athlete",
-        "last_session": "Session 03",
+        "last_session": "25.05.2026",
         "status": "Data sharing enabled",
         "photo": "assets/anita.jpeg"
     },
@@ -811,16 +811,16 @@ ATHLETES_DB = [
         "name": "Alessandro",
         "club": "Milano Golf Club",
         "level": "Professional athlete",
-        "last_session": "Session 02",
+        "last_session": "15.04.2025",
         "status": "Data sharing enabled",
-        "photo": "assets/alessandro.jepg"
+        "photo": "assets/alessandro.jpeg"
     },
     {
         "id": "stefano",
         "name": "Stefano",
         "club": "Milano Golf Club",
         "level": "Professional athlete",
-        "last_session": "Session 01",
+        "last_session": "18.05.2026",
         "status": "Data sharing enabled",
         "photo": "assets/stefano.jpeg"
     }
@@ -3374,6 +3374,109 @@ HR/ECG: <b>{hr_file}</b>
             </div>
             """, unsafe_allow_html=True)
 
+
+
+            
+
+           
+
+            if hr_df is not None:
+                st.markdown("---")
+                st.markdown('<div class="section-title">Heart Rate Trend During Session</div>', unsafe_allow_html=True)
+
+                st.markdown("""
+                <div class="formula-box">
+                    The ECG .bin file is processed independently from the IMU signals.
+                    Swing markers on this graph are detected from the acceleration channels of the same .bin file,
+                    using the acceleration direction change pattern positive → negative → positive.
+                    The graph shows the beat-by-beat HR trend during the session, the mean HR,
+                    the ±1 SD variability band and the HR points that deviate more than one standard deviation.
+                </div>
+                """, unsafe_allow_html=True)
+
+
+                bin_swing_times_s = hr_df.attrs.get("bin_swing_times_s", None)
+
+                st.plotly_chart(
+                    plot_hr_trend_deviation(
+                        hr_df,
+                        swing_times_s=bin_swing_times_s,
+                        pre_window_s=3.0
+                    ),
+                    use_container_width=True,
+                    key="hr_trend_with_bin_swing_markers"
+                )
+
+                if not pre_swing_hr_df.empty:
+                    st.markdown("---")
+                    st.markdown('<div class="section-title">Local Pre-Swing HR Check</div>', unsafe_allow_html=True)
+
+                    st.markdown("""
+                    <div class="formula-box">
+                        The yellow areas in the HR graph represent the 3 seconds before each detected swing.
+                        The table below shows the local HR used by the app to decide whether to display the
+                        relax-and-breathe advice.
+                    </div>
+                    """, unsafe_allow_html=True)
+
+                    st.dataframe(pre_swing_hr_df, use_container_width=True)
+
+                    csv_pre_swing_hr = pre_swing_hr_df.to_csv(index=False).encode("utf-8")
+
+                    st.download_button(
+                        "Download local pre-swing HR",
+                        data=csv_pre_swing_hr,
+                        file_name="local_pre_swing_hr.csv",
+                        mime="text/csv"
+                    )
+
+                hr_mean_session = hr_df["hr"].mean()
+                hr_std_session = hr_df["hr"].std()
+                rmssd_session = hr_df["rmssd"].mean()
+
+                csv_hr = hr_df.to_csv(index=False).encode("utf-8")
+
+                st.download_button(
+                    "Download HR results",
+                    data=csv_hr,
+                    file_name="hr_trend_results.csv",
+                    mime="text/csv"
+                )
+                if "ecg_raw" in hr_df.attrs and "ecg_filtered" in hr_df.attrs and "r_peaks" in hr_df.attrs:
+
+                    ecg_raw = hr_df.attrs["ecg_raw"]
+                    ecg_filtered = hr_df.attrs["ecg_filtered"]
+                    r_peaks = hr_df.attrs["r_peaks"]
+
+                    ecg_export_df = pd.DataFrame({
+                        "sample": np.arange(len(ecg_raw)),
+                        "time_s": np.arange(len(ecg_raw)) / FS_ECG,
+                        "ecg_raw": ecg_raw,
+                        "ecg_filtered_5_20": ecg_filtered
+                    })
+
+                    ecg_export_df["r_peak"] = 0
+                    ecg_export_df.loc[r_peaks, "r_peak"] = 1
+
+                    csv_ecg = ecg_export_df.to_csv(index=False).encode("utf-8")
+
+                    st.download_button(
+                        "Download ECG raw + filtered + R-peaks",
+                        data=csv_ecg,
+                        file_name="ecg_raw_filtered_rpeaks.csv",
+                        mime="text/csv"
+                    )
+                st.markdown(f"""
+                <div class="formula-box">
+                    <b>Mean HR:</b> {hr_mean_session:.1f} bpm<br>
+                    <b>HR standard deviation:</b> {hr_std_session:.1f} bpm<br>
+                    <b>Global RMSSD:</b> {rmssd_session:.1f} ms<br>
+                    <b>Note:</b> HR is displayed on its own ECG time axis and is not synchronized with the IMU signals.
+                </div>
+                """, unsafe_allow_html=True)
+
+
+
             # ============================================================
             # INTEGRATED INTERPRETATION
             # ============================================================
@@ -3775,106 +3878,6 @@ HR/ECG: <b>{hr_file}</b>
             </div>
             </div>
             """, unsafe_allow_html=True)
-
-            
-
-           
-
-            if hr_df is not None:
-                st.markdown("---")
-                st.markdown('<div class="section-title">Heart Rate Trend During Session</div>', unsafe_allow_html=True)
-
-                st.markdown("""
-                <div class="formula-box">
-                    The ECG .bin file is processed independently from the IMU signals.
-                    Swing markers on this graph are detected from the acceleration channels of the same .bin file,
-                    using the acceleration direction change pattern positive → negative → positive.
-                    The graph shows the beat-by-beat HR trend during the session, the mean HR,
-                    the ±1 SD variability band and the HR points that deviate more than one standard deviation.
-                </div>
-                """, unsafe_allow_html=True)
-
-
-                bin_swing_times_s = hr_df.attrs.get("bin_swing_times_s", None)
-
-                st.plotly_chart(
-                    plot_hr_trend_deviation(
-                        hr_df,
-                        swing_times_s=bin_swing_times_s,
-                        pre_window_s=3.0
-                    ),
-                    use_container_width=True,
-                    key="hr_trend_with_bin_swing_markers"
-                )
-
-                if not pre_swing_hr_df.empty:
-                    st.markdown("---")
-                    st.markdown('<div class="section-title">Local Pre-Swing HR Check</div>', unsafe_allow_html=True)
-
-                    st.markdown("""
-                    <div class="formula-box">
-                        The yellow areas in the HR graph represent the 3 seconds before each detected swing.
-                        The table below shows the local HR used by the app to decide whether to display the
-                        relax-and-breathe advice.
-                    </div>
-                    """, unsafe_allow_html=True)
-
-                    st.dataframe(pre_swing_hr_df, use_container_width=True)
-
-                    csv_pre_swing_hr = pre_swing_hr_df.to_csv(index=False).encode("utf-8")
-
-                    st.download_button(
-                        "Download local pre-swing HR",
-                        data=csv_pre_swing_hr,
-                        file_name="local_pre_swing_hr.csv",
-                        mime="text/csv"
-                    )
-
-                hr_mean_session = hr_df["hr"].mean()
-                hr_std_session = hr_df["hr"].std()
-                rmssd_session = hr_df["rmssd"].mean()
-
-                csv_hr = hr_df.to_csv(index=False).encode("utf-8")
-
-                st.download_button(
-                    "Download HR results",
-                    data=csv_hr,
-                    file_name="hr_trend_results.csv",
-                    mime="text/csv"
-                )
-                if "ecg_raw" in hr_df.attrs and "ecg_filtered" in hr_df.attrs and "r_peaks" in hr_df.attrs:
-
-                    ecg_raw = hr_df.attrs["ecg_raw"]
-                    ecg_filtered = hr_df.attrs["ecg_filtered"]
-                    r_peaks = hr_df.attrs["r_peaks"]
-
-                    ecg_export_df = pd.DataFrame({
-                        "sample": np.arange(len(ecg_raw)),
-                        "time_s": np.arange(len(ecg_raw)) / FS_ECG,
-                        "ecg_raw": ecg_raw,
-                        "ecg_filtered_5_20": ecg_filtered
-                    })
-
-                    ecg_export_df["r_peak"] = 0
-                    ecg_export_df.loc[r_peaks, "r_peak"] = 1
-
-                    csv_ecg = ecg_export_df.to_csv(index=False).encode("utf-8")
-
-                    st.download_button(
-                        "Download ECG raw + filtered + R-peaks",
-                        data=csv_ecg,
-                        file_name="ecg_raw_filtered_rpeaks.csv",
-                        mime="text/csv"
-                    )
-                st.markdown(f"""
-                <div class="formula-box">
-                    <b>Mean HR:</b> {hr_mean_session:.1f} bpm<br>
-                    <b>HR standard deviation:</b> {hr_std_session:.1f} bpm<br>
-                    <b>Global RMSSD:</b> {rmssd_session:.1f} ms<br>
-                    <b>Note:</b> HR is displayed on its own ECG time axis and is not synchronized with the IMU signals.
-                </div>
-                """, unsafe_allow_html=True)
-
             # ============================================================
             # SAMPLING AND FILTERING
             # ============================================================
