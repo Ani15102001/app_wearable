@@ -2250,8 +2250,30 @@ def plot_filtered_preview(club_df, sacral_df):
         yaxis_title="Resultant acceleration",
         height=500,
         template="plotly_white",
-        legend=dict(orientation="h", y=-0.25),
+        paper_bgcolor="white",
+        plot_bgcolor="white",
+        font=dict(color="#07184A"),
+        title_font=dict(color="#07184A"),
+        legend=dict(
+            orientation="h",
+            y=-0.25,
+            font=dict(color="#07184A")
+        ),
         margin=dict(l=20, r=20, t=60, b=70)
+    )
+
+    fig.update_xaxes(
+        showgrid=True,
+        gridcolor="#E5E7EB",
+        zeroline=False,
+        color="#07184A"
+    )
+
+    fig.update_yaxes(
+        showgrid=True,
+        gridcolor="#E5E7EB",
+        zeroline=False,
+        color="#07184A"
     )
 
     return fig
@@ -2399,7 +2421,25 @@ def plot_swing_metric_variation(swing_df, y_col, title, y_title):
         yaxis_title=y_title,
         height=420,
         template="plotly_white",
+        paper_bgcolor="white",
+        plot_bgcolor="white",
+        font=dict(color="#07184A"),
+        title_font=dict(color="#07184A"),
         margin=dict(l=20, r=20, t=60, b=60)
+    )
+
+    fig.update_xaxes(
+        showgrid=True,
+        gridcolor="#E5E7EB",
+        zeroline=False,
+        color="#07184A"
+    )
+
+    fig.update_yaxes(
+        showgrid=True,
+        gridcolor="#E5E7EB",
+        zeroline=False,
+        color="#07184A"
     )
 
     return fig
@@ -2430,17 +2470,44 @@ def plot_tempo_ratio_vs_delta_t(swing_df):
 
     fig.update_layout(
         title="Tempo Ratio vs Body–Club Peak Timing Delay",
-        xaxis=dict(title="Swing Number"),
-        yaxis=dict(title="Tempo Ratio", side="left"),
-        yaxis2=dict(title="Δt A5-A4 [s]", overlaying="y", side="right"),
+        xaxis=dict(
+            title="Swing Number",
+            color="#07184A",
+            showgrid=True,
+            gridcolor="#E5E7EB",
+            zeroline=False
+        ),
+        yaxis=dict(
+            title="Tempo Ratio",
+            side="left",
+            color="#07184A",
+            showgrid=True,
+            gridcolor="#E5E7EB",
+            zeroline=False
+        ),
+        yaxis2=dict(
+            title="Δt A5-A4 [s]",
+            overlaying="y",
+            side="right",
+            color="#07184A",
+            showgrid=False,
+            zeroline=False
+        ),
         height=450,
         template="plotly_white",
-        legend=dict(orientation="h", y=-0.25),
+        paper_bgcolor="white",
+        plot_bgcolor="white",
+        font=dict(color="#07184A"),
+        title_font=dict(color="#07184A"),
+        legend=dict(
+            orientation="h",
+            y=-0.25,
+            font=dict(color="#07184A")
+        ),
         margin=dict(l=20, r=20, t=60, b=70)
     )
 
     return fig
-
 
 def plot_motion_physiology_overlay(club_df, sacral_df, hr_df):
     fig = go.Figure()
@@ -2569,7 +2636,6 @@ def plot_hr_trend_deviation(hr_df, swing_times_s=None, pre_window_s=3.0, close_w
         y_top = hr_df["hr"].max()
 
         for i, t_swing in enumerate(swing_times_s):
-            # Full 3-second pre-swing window
             fig.add_vrect(
                 x0=t_swing - pre_window_s,
                 x1=t_swing,
@@ -2578,7 +2644,6 @@ def plot_hr_trend_deviation(hr_df, swing_times_s=None, pre_window_s=3.0, close_w
                 layer="below"
             )
 
-            # Close pre-swing window used for the advice
             fig.add_vrect(
                 x0=t_swing - close_window_s,
                 x1=t_swing,
@@ -2611,8 +2676,30 @@ def plot_hr_trend_deviation(hr_df, swing_times_s=None, pre_window_s=3.0, close_w
         yaxis_title="Heart Rate [bpm]",
         height=470,
         template="plotly_white",
-        legend=dict(orientation="h", y=-0.25),
+        paper_bgcolor="white",
+        plot_bgcolor="white",
+        font=dict(color="#07184A"),
+        title_font=dict(color="#07184A"),
+        legend=dict(
+            orientation="h",
+            y=-0.25,
+            font=dict(color="#07184A")
+        ),
         margin=dict(l=20, r=20, t=60, b=70)
+    )
+
+    fig.update_xaxes(
+        showgrid=True,
+        gridcolor="#E5E7EB",
+        zeroline=False,
+        color="#07184A"
+    )
+
+    fig.update_yaxes(
+        showgrid=True,
+        gridcolor="#E5E7EB",
+        zeroline=False,
+        color="#07184A"
     )
 
     return fig
@@ -3269,6 +3356,7 @@ HR/ECG: <b>{hr_file}</b>
             st.plotly_chart(
                 plot_filtered_preview(club_peak_df, sacral_peak_df),
                 use_container_width=True,
+                theme=None,
                 key="signal_preview_filtered_imu"
             )
 
@@ -3347,6 +3435,7 @@ HR/ECG: <b>{hr_file}</b>
                         "Tempo Ratio variation across 5 swings",
                         "Tempo Ratio"
                     ),
+                    theme=None,
                     use_container_width=True
                 )
 
@@ -3358,11 +3447,13 @@ HR/ECG: <b>{hr_file}</b>
                         "Body–Club Peak Delay variation across 5 swings",
                         "Δt [s]"
                     ),
+                    theme=None,
                     use_container_width=True
                 )
 
             st.plotly_chart(
                 plot_tempo_ratio_vs_delta_t(swing_analysis_df),
+                theme=None,
                 use_container_width=True
             )
 
@@ -3404,6 +3495,7 @@ HR/ECG: <b>{hr_file}</b>
                         pre_window_s=3.0
                     ),
                     use_container_width=True,
+                    theme=None,
                     key="hr_trend_with_bin_swing_markers"
                 )
 
