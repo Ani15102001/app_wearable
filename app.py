@@ -836,6 +836,12 @@ def get_athletes_for_club(club_name):
 def select_athlete(athlete):
     st.session_state.selected_athlete = athlete["id"]
     st.session_state.selected_athlete_name = athlete["name"]
+
+    # When a coach selects an athlete, go directly to Session Analysis
+    st.session_state.page = "Session Analysis"
+    st.session_state.pending_page = "Session Analysis"
+    st.session_state.selected_metric = None
+
     st.rerun()
 def select_metric(metric_name):
     st.session_state.selected_metric = metric_name
@@ -2874,6 +2880,479 @@ club_prominence = st.sidebar.slider(
 st.sidebar.caption("Suggested setup: 120 Hz, club 10 Hz, sacral 6 Hz.")
 
 # ============================================================
+# SESSION COMPARISON FUNCTIONS
+# ============================================================
+
+PRELOADED_SESSIONS = {
+    "Session 1": {
+        "club": "data/A4_prima.csv",
+        "sacral": "data/A5_prima.csv",
+        "hr": "data/SignalsSave_051358.bin"
+    },
+    "Session 2": {
+        "club": "data/A4_dopo.csv",
+        "sacral": "data/A5_dopo.csv",
+        "hr": "data/SignalsSave_052232.bin"
+    }
+}
+
+
+def compute_session_summary(session_name, fs, club_cutoff, sacral_cutoff, club_prominence):
+    files = PRELOADED_SESSIONS.get(session_name)
+
+    if files is None:
+        return None, None
+
+    club_raw = read_local_file(files["club"])
+    sacral_raw = read_local_file(files["sacral"])
+
+    club_df = standardize_imu_columns(club_raw, fs=fs)
+    sacral_df = standardize_imu_columns(sacral_raw, fs=fs)
+
+    if club_df is None or sacral_df is None:
+        return None, None
+
+    swing_df, club_peak_df, sacral_peak_df = analyze_five_swings(
+        club_df,
+        sacral_df,
+        fs=fs,
+        club_cutoff=club_cutoff,
+        sacral_cutoff=sacral_cutoff,
+        expected_swings=5,
+        min_distance_s=3.0,
+        club_prominence=club_prominence,
+        search_window_s=1.5,
+        t_start_analysis=5.0,
+        pre_flat_window_s=2.0,
+        baseline_margin=1.0,
+        post_peak_window_s=1.0,
+        return_margin=2.0
+    )
+
+    if swing_df.empty:
+        return None, None
+
+    hr_df = None
+    if files["hr"] is not None:
+        hr_df = process_ecg_bin_path_to_hr(files["hr"])
+
+    tempo_ratio = swing_df["tempo_ratio"].mean()
+    delta_t = swing_df["delta_t"].mean()
+    cv_tempo = coefficient_of_variation(swing_df["tempo_ratio"])
+    cv_delta = coefficient_of_variation(swing_df["delta_t"])
+
+    hr_mean = np.nan
+    rmssd_mean = np.nan
+    pre_swing_high_hr = False
+    pre_swing_hr_max = np.nan
+
+    if hr_df is not None:
+        hr_mean = hr_df["hr"].mean()
+        rmssd_mean = hr_df["rmssd"].mean()
+
+        pre_swing_hr_df = compute_local_pre_swing_hr(
+            hr_df=hr_df,
+            swing_times_s=hr_df.attrs.get("bin_swing_times_s", None),
+            pre_window_s=3.0,
+            max_window_before_swing_s=1.5,
+            high_hr_threshold=120
+        )
+
+        if not pre_swing_hr_df.empty:
+            pre_swing_high_hr = pre_swing_hr_df["High_HR_before_swing"].any()
+            pre_swing_hr_max = pre_swing_hr_df["HR_pre_swing_max_close"].max()
+
+    output, explanation, output_class = classify_interpretation(
+        tempo_ratio=tempo_ratio,
+        delta_t=delta_t,
+        hr_mean=hr_mean,
+        rmssd_mean=rmssd_mean,
+        pre_swing_high_hr=pre_swing_high_hr,
+        pre_swing_hr_mean=pre_swing_hr_max,
+        swing_df=swing_df
+    )
+
+    summary = {
+        "Session": session_name,
+        "Mean Tempo Ratio": tempo_ratio,
+        "CV Tempo Ratio [%]": cv_tempo,
+        "Mean Δt body-club [s]": delta_t,
+        "CV Δt [%]": cv_delta,
+        "Mean HR [bpm]": hr_mean,
+        "Mean RMSSD [ms]": rmssd_mean,
+        "Max pre-swing HR [bpm]": pre_swing_hr_max,
+        "High pre-swing HR": pre_swing_high_hr,
+        "Integrated output": output
+    }
+
+    return summary, swing_df
+
+
+def plot_comparison_bar(comparison_df, y_col, title, y_title):
+    fig = go.Figure()
+
+    fig.add_trace(go.Bar(
+        x=comparison_df["Session"],
+        y=comparison_df[y_col],
+        name=y_title
+    ))
+
+    fig.update_layout(
+        title=title,
+        xaxis_title="Session",
+        yaxis_title=y_title,
+        height=420,
+        template="plotly_white",
+        paper_bgcolor="white",
+        plot_bgcolor="white",
+        font=dict(color="#07184A"),
+        title_font=dict(color="#07184A"),
+        margin=dict(l=20, r=20, t=60, b=60)
+    )
+
+    fig.update_xaxes(
+        showgrid=False,
+        zeroline=False,
+        color="#07184A"
+    )
+
+    fig.update_yaxes(
+        showgrid=True,
+        gridcolor="#E5E7EB",
+        zeroline=False,
+        color="#07184A"
+    )
+
+    return fig
+
+# ============================================================
+# SESSION COMPARISON FUNCTIONS
+# ============================================================
+
+PRELOADED_SESSIONS = {
+    "Session 1": {
+        "club": "data/A4_prima.csv",
+        "sacral": "data/A5_prima.csv",
+        "hr": "data/SignalsSave_051358.bin"
+    },
+    "Session 2": {
+        "club": "data/A4_dopo.csv",
+        "sacral": "data/A5_dopo.csv",
+        "hr": "data/SignalsSave_052232.bin"
+    }
+}
+
+
+def compute_session_summary(session_name, fs, club_cutoff, sacral_cutoff, club_prominence):
+    files = PRELOADED_SESSIONS.get(session_name)
+
+    if files is None:
+        return None, None
+
+    club_raw = read_local_file(files["club"])
+    sacral_raw = read_local_file(files["sacral"])
+
+    club_df = standardize_imu_columns(club_raw, fs=fs)
+    sacral_df = standardize_imu_columns(sacral_raw, fs=fs)
+
+    if club_df is None or sacral_df is None:
+        return None, None
+
+    swing_df, club_peak_df, sacral_peak_df = analyze_five_swings(
+        club_df,
+        sacral_df,
+        fs=fs,
+        club_cutoff=club_cutoff,
+        sacral_cutoff=sacral_cutoff,
+        expected_swings=5,
+        min_distance_s=3.0,
+        club_prominence=club_prominence,
+        search_window_s=1.5,
+        t_start_analysis=5.0,
+        pre_flat_window_s=2.0,
+        baseline_margin=1.0,
+        post_peak_window_s=1.0,
+        return_margin=2.0
+    )
+
+    if swing_df.empty:
+        return None, None
+
+    hr_df = None
+
+    if files["hr"] is not None:
+        hr_df = process_ecg_bin_path_to_hr(files["hr"])
+
+    tempo_ratio = swing_df["tempo_ratio"].mean()
+    delta_t = swing_df["delta_t"].mean()
+    cv_tempo = coefficient_of_variation(swing_df["tempo_ratio"])
+    cv_delta = coefficient_of_variation(swing_df["delta_t"])
+
+    hr_mean = np.nan
+    rmssd_mean = np.nan
+    pre_swing_hr_max = np.nan
+    pre_swing_high_hr = False
+
+    if hr_df is not None:
+        hr_mean = hr_df["hr"].mean()
+        rmssd_mean = hr_df["rmssd"].mean()
+
+        pre_swing_hr_df = compute_local_pre_swing_hr(
+            hr_df=hr_df,
+            swing_times_s=hr_df.attrs.get("bin_swing_times_s", None),
+            pre_window_s=3.0,
+            max_window_before_swing_s=1.5,
+            high_hr_threshold=120
+        )
+
+        if not pre_swing_hr_df.empty:
+            pre_swing_hr_max = pre_swing_hr_df["HR_pre_swing_max_close"].max()
+            pre_swing_high_hr = pre_swing_hr_df["High_HR_before_swing"].any()
+
+    output, explanation, output_class = classify_interpretation(
+        tempo_ratio=tempo_ratio,
+        delta_t=delta_t,
+        hr_mean=hr_mean,
+        rmssd_mean=rmssd_mean,
+        pre_swing_high_hr=pre_swing_high_hr,
+        pre_swing_hr_mean=pre_swing_hr_max,
+        swing_df=swing_df
+    )
+
+    summary = {
+        "Session": session_name,
+        "Mean Tempo Ratio": tempo_ratio,
+        "CV Tempo Ratio [%]": cv_tempo,
+        "Mean Δt body-club [s]": delta_t,
+        "CV Δt [%]": cv_delta,
+        "Mean HR [bpm]": hr_mean,
+        "Mean RMSSD [ms]": rmssd_mean,
+        "Max pre-swing HR [bpm]": pre_swing_hr_max,
+        "High pre-swing HR": pre_swing_high_hr,
+        "Integrated output": output
+    }
+
+    return summary, swing_df
+
+
+def plot_comparison_bar(comparison_df, y_col, title, y_title):
+    fig = go.Figure()
+
+    fig.add_trace(go.Bar(
+        x=comparison_df["Session"],
+        y=comparison_df[y_col],
+        name=y_title
+    ))
+
+    fig.update_layout(
+        title=title,
+        xaxis_title="Session",
+        yaxis_title=y_title,
+        height=420,
+        template="plotly_white",
+        paper_bgcolor="white",
+        plot_bgcolor="white",
+        font=dict(color="#07184A"),
+        title_font=dict(color="#07184A"),
+        margin=dict(l=20, r=20, t=60, b=60)
+    )
+
+    fig.update_xaxes(
+        showgrid=False,
+        zeroline=False,
+        color="#07184A"
+    )
+
+    fig.update_yaxes(
+        showgrid=True,
+        gridcolor="#E5E7EB",
+        zeroline=False,
+        color="#07184A"
+    )
+
+    return fig
+
+
+def render_session_comparison_page(fs, club_cutoff, sacral_cutoff, club_prominence):
+
+    st.markdown('<div class="section-title">Session Comparison</div>', unsafe_allow_html=True)
+
+    st.markdown("""
+    <div class="formula-box">
+        This section compares two preloaded training sessions. 
+        The goal is to understand whether the athlete improved, worsened or maintained a similar behaviour
+        in terms of rhythm, repeatability, body–club transfer and physiological state.
+    </div>
+    """, unsafe_allow_html=True)
+
+    selected_sessions = st.multiselect(
+        "Select sessions to compare",
+        list(PRELOADED_SESSIONS.keys()),
+        default=["Session 1", "Session 2"]
+    )
+
+    if len(selected_sessions) < 2:
+        st.info("Select at least two sessions to start the comparison.")
+        return
+
+    comparison_rows = []
+    swing_tables = {}
+
+    for session_name in selected_sessions:
+        summary, swing_df = compute_session_summary(
+            session_name=session_name,
+            fs=fs,
+            club_cutoff=club_cutoff,
+            sacral_cutoff=sacral_cutoff,
+            club_prominence=club_prominence
+        )
+
+        if summary is not None:
+            comparison_rows.append(summary)
+            swing_tables[session_name] = swing_df
+
+    if len(comparison_rows) < 2:
+        st.error("Not enough valid sessions were available for comparison.")
+        return
+
+    comparison_df = pd.DataFrame(comparison_rows)
+
+    st.markdown("---")
+    st.markdown('<div class="section-title">Comparison Summary</div>', unsafe_allow_html=True)
+
+    st.dataframe(
+        comparison_df,
+        use_container_width=True,
+        hide_index=True
+    )
+
+    csv_comparison = comparison_df.to_csv(index=False).encode("utf-8")
+
+    st.download_button(
+        "Download session comparison results",
+        data=csv_comparison,
+        file_name="session_comparison_results.csv",
+        mime="text/csv"
+    )
+
+    st.markdown("---")
+    st.markdown('<div class="section-title">Main Comparison Plots</div>', unsafe_allow_html=True)
+
+    c1, c2 = st.columns(2)
+
+    with c1:
+        st.plotly_chart(
+            plot_comparison_bar(
+                comparison_df,
+                "Mean Tempo Ratio",
+                "Mean Tempo Ratio across sessions",
+                "Mean Tempo Ratio"
+            ),
+            use_container_width=True,
+            theme=None
+        )
+
+    with c2:
+        st.plotly_chart(
+            plot_comparison_bar(
+                comparison_df,
+                "Mean Δt body-club [s]",
+                "Mean Body–Club Delay across sessions",
+                "Mean Δt [s]"
+            ),
+            use_container_width=True,
+            theme=None
+        )
+
+    c3, c4 = st.columns(2)
+
+    with c3:
+        st.plotly_chart(
+            plot_comparison_bar(
+                comparison_df,
+                "CV Tempo Ratio [%]",
+                "Rhythm Repeatability across sessions",
+                "CV Tempo Ratio [%]"
+            ),
+            use_container_width=True,
+            theme=None
+        )
+
+    with c4:
+        st.plotly_chart(
+            plot_comparison_bar(
+                comparison_df,
+                "Mean HR [bpm]",
+                "Mean Heart Rate across sessions",
+                "Mean HR [bpm]"
+            ),
+            use_container_width=True,
+            theme=None
+        )
+
+    st.markdown("---")
+    st.markdown('<div class="section-title">Integrated Comparison Interpretation</div>', unsafe_allow_html=True)
+
+    first = comparison_df.iloc[0]
+    last = comparison_df.iloc[-1]
+
+    interpretation_text = ""
+
+    if abs(last["Mean Tempo Ratio"] - 3.0) < abs(first["Mean Tempo Ratio"] - 3.0):
+        interpretation_text += (
+            "The latest session shows a Tempo Ratio closer to the 3:1 reference, "
+            "suggesting an improvement in swing rhythm. "
+        )
+    else:
+        interpretation_text += (
+            "The latest session does not show a clear improvement in Tempo Ratio compared with the first session. "
+        )
+
+    if abs(last["Mean Δt body-club [s]"]) < abs(first["Mean Δt body-club [s]"]):
+        interpretation_text += (
+            "The body–club timing delay is lower in the latest session, suggesting a better transfer "
+            "from body motion to club motion. "
+        )
+    else:
+        interpretation_text += (
+            "The body–club timing delay is not reduced in the latest session, so coordination should still be monitored. "
+        )
+
+    if last["CV Tempo Ratio [%]"] < first["CV Tempo Ratio [%]"]:
+        interpretation_text += (
+            "Rhythm repeatability improved because the coefficient of variation of Tempo Ratio decreased. "
+        )
+    else:
+        interpretation_text += (
+            "Rhythm repeatability did not clearly improve because the coefficient of variation did not decrease. "
+        )
+
+    if not np.isnan(last["Mean HR [bpm]"]) and not np.isnan(first["Mean HR [bpm]"]):
+        if last["Mean HR [bpm]"] < first["Mean HR [bpm]"]:
+            interpretation_text += (
+                "The mean HR is lower in the latest session, suggesting lower physiological activation. "
+            )
+        else:
+            interpretation_text += (
+                "The mean HR is higher in the latest session, suggesting greater physiological activation. "
+            )
+
+    st.markdown(f"""
+    <div class="coach-advice-box">
+        <div class="coach-advice-title">Session-to-session interpretation</div>
+        <div class="coach-advice-text">
+            {interpretation_text}
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown("---")
+    st.markdown('<div class="section-title">Swing-by-Swing Tables by Session</div>', unsafe_allow_html=True)
+
+    for session_name, swing_df in swing_tables.items():
+        with st.expander(f"{session_name} swing-by-swing results", expanded=False):
+            st.dataframe(swing_df, use_container_width=True)
+# ============================================================
 # HOME PAGE
 # ============================================================
 
@@ -3098,12 +3577,15 @@ Future section dedicated to acceleration intensity, force-related indicators and
 
         if st.button("Open Power analysis", use_container_width=True):
             select_metric("Forza")
+        
 
     st.markdown("---")
 
     if st.session_state.selected_metric is None:
         st.info("Select a metric to open the corresponding analysis.")
         st.stop()
+
+    
 
     if st.session_state.selected_metric != "Ritmo":
         st.markdown(f"""
@@ -3125,6 +3607,21 @@ Future section dedicated to acceleration intensity, force-related indicators and
 
     st.markdown('<div class="section-title">Ritmo Analysis</div>', unsafe_allow_html=True)
 
+    rhythm_mode = st.radio(
+        "Choose rhythm analysis mode",
+        ["Single session analysis", "Compare sessions"],
+        horizontal=True,
+        key="rhythm_analysis_mode"
+    )
+
+    if rhythm_mode == "Compare sessions":
+        render_session_comparison_page(
+            fs=fs,
+            club_cutoff=club_cutoff,
+            sacral_cutoff=sacral_cutoff,
+            club_prominence=club_prominence
+        )
+        st.stop()
 
     session_name = st.selectbox(
         "Select session",
@@ -4004,6 +4501,222 @@ HR/ECG: <b>{hr_file}</b>
         </div>
         """, unsafe_allow_html=True)
 
+# ============================================================
+# SESSION COMPARISON PAGE
+# ============================================================
+
+elif st.session_state.page == "Session Comparison":
+
+    st.markdown("""
+    <div class="hero">
+        <div class="hero-tag">Session comparison</div>
+        <div class="hero-title">Compare Training Sessions</div>
+        <div class="hero-subtitle">
+            Compare rhythm, body–club coordination and physiological state across different training sessions.
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    if st.button("← Back to Home", key="back_home_from_comparison"):
+        go_to_page("Home")
+
+    st.markdown('<div class="section-title">Select sessions to compare</div>', unsafe_allow_html=True)
+
+    selected_sessions = st.multiselect(
+        "Choose two or more sessions",
+        list(PRELOADED_SESSIONS.keys()),
+        default=["Session 1", "Session 2"]
+    )
+
+    if len(selected_sessions) < 2:
+        st.info("Select at least two sessions to start the comparison.")
+        st.stop()
+
+    comparison_rows = []
+    swing_tables = {}
+
+    for session in selected_sessions:
+        summary, swing_df = compute_session_summary(
+            session_name=session,
+            fs=fs,
+            club_cutoff=club_cutoff,
+            sacral_cutoff=sacral_cutoff,
+            club_prominence=club_prominence
+        )
+
+        if summary is not None:
+            comparison_rows.append(summary)
+            swing_tables[session] = swing_df
+
+    if len(comparison_rows) < 2:
+        st.error("Not enough valid sessions were available for comparison.")
+        st.stop()
+
+    comparison_df = pd.DataFrame(comparison_rows)
+
+    st.markdown("""
+    <div class="formula-box">
+        This page compares the main outputs of different training sessions.
+        The objective is to understand whether the athlete improved, worsened or maintained
+        a similar behaviour in terms of rhythm, repeatability, body–club transfer and physiological state.
+    </div>
+    """, unsafe_allow_html=True)
+
+    # ============================================================
+    # SUMMARY TABLE
+    # ============================================================
+
+    st.markdown('<div class="section-title">Comparison Summary</div>', unsafe_allow_html=True)
+
+    st.dataframe(
+        comparison_df,
+        use_container_width=True,
+        hide_index=True
+    )
+
+    csv_comparison = comparison_df.to_csv(index=False).encode("utf-8")
+
+    st.download_button(
+        "Download session comparison results",
+        data=csv_comparison,
+        file_name="session_comparison_results.csv",
+        mime="text/csv"
+    )
+
+    # ============================================================
+    # COMPARISON PLOTS
+    # ============================================================
+
+    st.markdown("---")
+    st.markdown('<div class="section-title">Main Comparison Plots</div>', unsafe_allow_html=True)
+
+    c1, c2 = st.columns(2)
+
+    with c1:
+        st.plotly_chart(
+            plot_comparison_bar(
+                comparison_df,
+                "Mean Tempo Ratio",
+                "Mean Tempo Ratio across sessions",
+                "Mean Tempo Ratio"
+            ),
+            use_container_width=True,
+            theme=None
+        )
+
+    with c2:
+        st.plotly_chart(
+            plot_comparison_bar(
+                comparison_df,
+                "Mean Δt body-club [s]",
+                "Mean Body–Club Delay across sessions",
+                "Mean Δt [s]"
+            ),
+            use_container_width=True,
+            theme=None
+        )
+
+    c3, c4 = st.columns(2)
+
+    with c3:
+        st.plotly_chart(
+            plot_comparison_bar(
+                comparison_df,
+                "CV Tempo Ratio [%]",
+                "Rhythm Repeatability across sessions",
+                "CV Tempo Ratio [%]"
+            ),
+            use_container_width=True,
+            theme=None
+        )
+
+    with c4:
+        st.plotly_chart(
+            plot_comparison_bar(
+                comparison_df,
+                "Mean HR [bpm]",
+                "Mean Heart Rate across sessions",
+                "Mean HR [bpm]"
+            ),
+            use_container_width=True,
+            theme=None
+        )
+
+    # ============================================================
+    # AUTOMATIC COMPARISON INTERPRETATION
+    # ============================================================
+
+    st.markdown("---")
+    st.markdown('<div class="section-title">Integrated Comparison Interpretation</div>', unsafe_allow_html=True)
+
+    first = comparison_df.iloc[0]
+    last = comparison_df.iloc[-1]
+
+    tempo_change = last["Mean Tempo Ratio"] - first["Mean Tempo Ratio"]
+    delta_change = last["Mean Δt body-club [s]"] - first["Mean Δt body-club [s]"]
+    cv_change = last["CV Tempo Ratio [%]"] - first["CV Tempo Ratio [%]"]
+    hr_change = last["Mean HR [bpm]"] - first["Mean HR [bpm]"]
+
+    interpretation_text = ""
+
+    if abs(last["Mean Tempo Ratio"] - 3.0) < abs(first["Mean Tempo Ratio"] - 3.0):
+        interpretation_text += (
+            "The latest session shows a Tempo Ratio closer to the 3:1 reference, "
+            "suggesting an improvement in swing rhythm. "
+        )
+    else:
+        interpretation_text += (
+            "The latest session does not show a clear improvement in Tempo Ratio compared with the first session. "
+        )
+
+    if abs(last["Mean Δt body-club [s]"]) < abs(first["Mean Δt body-club [s]"]):
+        interpretation_text += (
+            "Body–club timing delay is lower in the latest session, which may indicate a better transfer "
+            "from body motion to club motion. "
+        )
+    else:
+        interpretation_text += (
+            "Body–club timing delay is not reduced in the latest session, so coordination should still be monitored. "
+        )
+
+    if last["CV Tempo Ratio [%]"] < first["CV Tempo Ratio [%]"]:
+        interpretation_text += (
+            "Rhythm repeatability also improved, because the coefficient of variation of Tempo Ratio decreased. "
+        )
+    else:
+        interpretation_text += (
+            "Rhythm repeatability did not clearly improve, because the coefficient of variation did not decrease. "
+        )
+
+    if not np.isnan(last["Mean HR [bpm]"]) and not np.isnan(first["Mean HR [bpm]"]):
+        if last["Mean HR [bpm]"] < first["Mean HR [bpm]"]:
+            interpretation_text += (
+                "The mean HR is lower in the latest session, suggesting a lower physiological activation during the test. "
+            )
+        else:
+            interpretation_text += (
+                "The mean HR is higher in the latest session, suggesting greater physiological activation that should be considered when interpreting the technical results. "
+            )
+
+    st.markdown(f"""
+    <div class="coach-advice-box">
+        <div class="coach-advice-title">Session-to-session interpretation</div>
+        <div class="coach-advice-text">
+            {interpretation_text}
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # ============================================================
+    # SWING TABLES
+    # ============================================================
+
+    st.markdown("---")
+    st.markdown('<div class="section-title">Swing-by-Swing Tables by Session</div>', unsafe_allow_html=True)
+
+    for session, swing_df in swing_tables.items():
+        with st.expander(f"{session} swing-by-swing results", expanded=False):
+            st.dataframe(swing_df, use_container_width=True)
 # ============================================================
 # METRICS EXPLANATION PAGE
 # ============================================================
