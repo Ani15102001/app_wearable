@@ -3563,7 +3563,7 @@ Future section dedicated to trunk stability, body control, postural consistency 
 """, unsafe_allow_html=True)
 
         if st.button("Open Stability analysis", use_container_width=True):
-            select_metric("Stabilità")
+            select_metric("Stability")
 
     with mcol3:
         st.markdown("""
@@ -3578,7 +3578,7 @@ Future section dedicated to acceleration intensity, force-related indicators and
 """, unsafe_allow_html=True)
 
         if st.button("Open Power analysis", use_container_width=True):
-            select_metric("Forza")
+            select_metric("Power")
         
 
     st.markdown("---")
