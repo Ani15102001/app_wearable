@@ -837,9 +837,11 @@ def select_athlete(athlete):
     st.session_state.selected_athlete = athlete["id"]
     st.session_state.selected_athlete_name = athlete["name"]
 
-    # When a coach selects an athlete, go directly to Session Analysis
+    # After selecting an athlete, open the metrics selection page
     st.session_state.page = "Session Analysis"
     st.session_state.pending_page = "Session Analysis"
+
+    # Important: reset selected metric, so it does NOT open directly the interpretation
     st.session_state.selected_metric = None
 
     st.rerun()
@@ -1171,7 +1173,7 @@ def standardize_hr_columns(df):
 # Pipeline: raw ECG -> band-pass 5–20 Hz -> R-peaks -> RR -> HR
 # ============================================================
 
-FS_ECG = 250
+FS_ECG = 256
 ECG_CROP = 1375
 ECG_NUM_CHANNELS = 4
 ECG_DTYPE = ">i4"
@@ -3605,7 +3607,7 @@ Future section dedicated to acceleration intensity, force-related indicators and
         st.session_state.selected_metric = None
         st.rerun()
 
-    st.markdown('<div class="section-title">Ritmo Analysis</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-title">Rhythm Analysis</div>', unsafe_allow_html=True)
 
     rhythm_mode = st.radio(
         "Choose rhythm analysis mode",
