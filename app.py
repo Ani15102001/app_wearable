@@ -710,7 +710,7 @@ def render_login_page():
 
         name = st.text_input(
             "Name and surname",
-            placeholder="Example: Rachele Costantini"
+            placeholder="Example: Anita Costantini"
         )
 
         club = st.text_input(
@@ -1173,7 +1173,7 @@ def standardize_hr_columns(df):
 # Pipeline: raw ECG -> band-pass 5–20 Hz -> R-peaks -> RR -> HR
 # ============================================================
 
-FS_ECG = 256
+FS_ECG = 250
 ECG_CROP = 1375
 ECG_NUM_CHANNELS = 4
 ECG_DTYPE = ">i4"
