@@ -1173,11 +1173,11 @@ def standardize_hr_columns(df):
 # Pipeline: raw ECG -> band-pass 5–20 Hz -> R-peaks -> RR -> HR
 # ============================================================
 
-FS_ECG = 250
-ECG_CROP = 1375
+FS_ECG = 256
+ECG_CROP = 0
 ECG_NUM_CHANNELS = 4
-ECG_DTYPE = ">i4"
-
+ECG_DTYPE = ">i2"
+IMU_HR_SYNC_OFFSET_S = 4.0   # tap/jump sync: IMU t=4.0 s == HR t=0 s
 
 def load_ecg_bin_from_upload(uploaded_file):
     """
@@ -1260,7 +1260,7 @@ def process_ecg_bin_path_to_hr(file_path):
         ecg_raw,
         fs=FS_ECG,
         lowcut=5,
-        highcut=20,
+        highcut=18,
         order=3
     )
 
@@ -1303,7 +1303,7 @@ def process_ecg_bin_path_to_hr(file_path):
 
     return hr_df
 
-def bandpass_filter_ecg(signal, fs=250, lowcut=5, highcut=20, order=3):
+def bandpass_filter_ecg(signal, fs=256, lowcut=5, highcut=18, order=3):
     """
     Band-pass filter used to emphasize QRS/R-peaks.
     """
@@ -1321,100 +1321,101 @@ def bandpass_filter_ecg(signal, fs=250, lowcut=5, highcut=20, order=3):
     return filtfilt(b, a, signal)
 
 
-def detect_r_peaks_from_filtered_ecg(ecg_filtered, fs=250):
+def detect_r_peaks_from_filtered_ecg(ecg_filtered, fs=256):
     """
-    R-peak detection from filtered ECG.
-    This is the same simple/permissive logic that worked better in Colab.
+    Artifact-aware R-peak detection.
+    1) Build artifact mask: local peak-to-peak range > 4x baseline + amplitude
+       saturation proxy, dilated by 0.15 s.
+    2) Neutralize artifact zones, run find_peaks, then drop peaks inside the mask.
+    Returns (r_peaks, artifact_mask).
     """
+    x = np.asarray(ecg_filtered, dtype=float)
+    n = len(x)
+    if n < int(0.5 * fs):
+        return np.array([], dtype=int), np.zeros(n, dtype=bool)
 
-    ecg_filtered = np.asarray(ecg_filtered, dtype=float)
+    # local peak-to-peak range (~0.2 s sliding window)
+    win = max(3, int(0.20 * fs))
+    s = pd.Series(x)
+    local_p2p = (s.rolling(win, center=True, min_periods=1).max()
+                 - s.rolling(win, center=True, min_periods=1).min()).values
+    baseline_p2p = np.median(local_p2p)
+    if baseline_p2p <= 0:
+        baseline_p2p = np.mean(np.abs(x)) + 1e-9
 
-    distance_samples = int(0.35 * fs)
+    # saturation proxy: amplitude pinned at the signal extremes (clipping)
+    sat_hi, sat_lo = np.percentile(x, 99.5), np.percentile(x, 0.5)
+    sat_mask = (x >= sat_hi) | (x <= sat_lo)
 
-    height_threshold = np.percentile(ecg_filtered, 85)
-    prominence_threshold = np.std(ecg_filtered) * 0.8
+    artifact = (local_p2p > 4.0 * baseline_p2p) | sat_mask
 
-    r_peaks, properties = find_peaks(
-        ecg_filtered,
-        distance=distance_samples,
-        height=height_threshold,
-        prominence=prominence_threshold
+    # dilate mask by 0.15 s each side
+    dil = max(1, int(0.15 * fs))
+    if artifact.any():
+        idx = np.where(artifact)[0]
+        artifact_dil = np.zeros(n, dtype=bool)
+        for i in idx:
+            artifact_dil[max(0, i - dil): min(n, i + dil + 1)] = True
+        artifact = artifact_dil
+
+    clean_vals = x[~artifact]
+    if clean_vals.size < int(0.5 * fs):
+        return np.array([], dtype=int), artifact
+
+    clean = x.copy()
+    clean[artifact] = np.median(x)              # flatten artifact zones
+
+    r_peaks, _ = find_peaks(
+        clean,
+        distance=int(0.35 * fs),                # < ~170 bpm
+        height=np.percentile(clean_vals, 90),
+        prominence=np.std(clean_vals) * 0.6
     )
+    r_peaks = r_peaks[~artifact[r_peaks]]        # drop peaks still inside artifacts
 
-    return r_peaks, properties
+    return r_peaks, artifact
 
-
-def compute_hr_from_r_peaks(r_peaks, fs=250):
+def compute_hr_from_r_peaks(r_peaks, fs=256):
     """
-    Computes beat-by-beat HR from R-peaks.
-    Removes non-physiological RR intervals and applies a light median smoothing.
+    Beat-by-beat HR with physiological RR gate + local continuity gate.
+    Robust central value = MEDIAN HR. RMSSD not recoverable under this protocol -> NaN.
     """
-
     if len(r_peaks) < 3:
         return None
 
     rr_ms_all = np.diff(r_peaks) / fs * 1000.0
-    time_hr_s_all = r_peaks[1:] / fs
+    time_all = r_peaks[1:] / fs
 
-    # Physiological RR filter:
-    # 400 ms = 150 bpm
-    # 1200 ms = 50 bpm
-    valid_mask = (rr_ms_all >= 400) & (rr_ms_all <= 1200)
+    # 1) physiological gate (400-1200 ms == 50-150 bpm)
+    phys = (rr_ms_all >= 320) & (rr_ms_all <= 1200)
+    rr_ms, time_hr_s = rr_ms_all[phys], time_all[phys]
+    if len(rr_ms) < 3:
+        return None
 
-    rr_ms = rr_ms_all[valid_mask]
-    time_hr_s = time_hr_s_all[valid_mask]
-
+    # 2) local continuity gate vs rolling-median RR (rejects motion spikes)
+    local_med = pd.Series(rr_ms).rolling(5, center=True, min_periods=1).median().values
+    cont = (rr_ms <= 1.5 * local_med) & (rr_ms >= 0.6 * local_med)
+    rr_ms, time_hr_s = rr_ms[cont], time_hr_s[cont]
     if len(rr_ms) < 3:
         return None
 
     hr_bpm = 60000.0 / rr_ms
+    hr_smooth = pd.Series(hr_bpm).rolling(3, center=True, min_periods=1).median().values
 
-    # Outlier removal using MAD
-    hr_median = np.median(hr_bpm)
-    hr_mad = np.median(np.abs(hr_bpm - hr_median))
-
-    if hr_mad == 0:
-        clean_mask = np.ones(len(hr_bpm), dtype=bool)
-    else:
-        clean_mask = np.abs(hr_bpm - hr_median) < 3.5 * hr_mad
-
-    hr_bpm_clean = hr_bpm[clean_mask]
-    rr_ms_clean = rr_ms[clean_mask]
-    time_hr_s_clean = time_hr_s[clean_mask]
-
-    if len(hr_bpm_clean) < 3:
-        return None
-
-    # Light smoothing, same as Colab
-    hr_series = pd.Series(hr_bpm_clean)
-
-    hr_smooth = hr_series.rolling(
-        window=3,
-        center=True,
-        min_periods=1
-    ).median().values
-
-    hr_mean = np.mean(hr_smooth)
+    hr_central = np.median(hr_smooth)            # robust session value
     hr_std = np.std(hr_smooth)
 
-    if len(rr_ms_clean) >= 5:
-        rmssd = np.sqrt(np.mean(np.diff(rr_ms_clean) ** 2))
-    else:
-        rmssd = np.nan
-
     hr_df = pd.DataFrame({
-        "time_s": time_hr_s_clean,
-        "rr_ms": rr_ms_clean,
-        "hr_raw": hr_bpm_clean,
+        "time_s": time_hr_s,
+        "rr_ms": rr_ms,
+        "hr_raw": hr_bpm,
         "hr": hr_smooth,
-        "rmssd": rmssd
+        "rmssd": np.nan
     })
-
-    hr_df["hr_mean"] = hr_mean
+    hr_df["hr_mean"] = hr_central
     hr_df["hr_std"] = hr_std
-    hr_df["hr_deviation"] = hr_df["hr"] - hr_mean
+    hr_df["hr_deviation"] = hr_df["hr"] - hr_central
     hr_df["outside_1sd"] = np.abs(hr_df["hr_deviation"]) > hr_std
-
     return hr_df
 
 def compute_local_pre_swing_hr(
@@ -1504,7 +1505,7 @@ def process_ecg_bin_to_hr(uploaded_file):
         ecg_raw,
         fs=FS_ECG,
         lowcut=5,
-        highcut=20,
+        highcut=18,
         order=3
     )
 
@@ -1549,7 +1550,7 @@ def process_ecg_bin_to_hr(uploaded_file):
 
     return hr_df
 
-def detect_bin_acceleration_swings(acc_x, acc_y, acc_z, fs=250, expected_swings=5):
+def detect_bin_acceleration_swings(acc_x, acc_y, acc_z, fs=256, expected_swings=5):
     """
     Detects swing events from the chest-band .bin acceleration channels.
 
@@ -2598,7 +2599,7 @@ def plot_hr_hrv(hr_df):
 def plot_hr_trend_deviation(hr_df, swing_times_s=None, pre_window_s=3.0, close_window_s=0.8):
     fig = go.Figure()
 
-    hr_mean = hr_df["hr"].mean()
+    hr_mean =  hr_df["hr"].median()
     hr_std = hr_df["hr"].std()
 
     if swing_times_s is None:
@@ -2949,12 +2950,12 @@ def compute_session_summary(session_name, fs, club_cutoff, sacral_cutoff, club_p
     pre_swing_hr_max = np.nan
 
     if hr_df is not None:
-        hr_mean = hr_df["hr"].mean()
+        hr_mean =  hr_df["hr"].median()
         rmssd_mean = hr_df["rmssd"].mean()
 
         pre_swing_hr_df = compute_local_pre_swing_hr(
             hr_df=hr_df,
-            swing_times_s=hr_df.attrs.get("bin_swing_times_s", None),
+            swing_times_s=swing_df["t_peak_club"].values - IMU_HR_SYNC_OFFSET_S,
             pre_window_s=3.0,
             max_window_before_swing_s=1.5,
             high_hr_threshold=120
@@ -3096,12 +3097,12 @@ def compute_session_summary(session_name, fs, club_cutoff, sacral_cutoff, club_p
     pre_swing_high_hr = False
 
     if hr_df is not None:
-        hr_mean = hr_df["hr"].mean()
+        hr_mean =  hr_df["hr"].median()
         rmssd_mean = hr_df["rmssd"].mean()
 
         pre_swing_hr_df = compute_local_pre_swing_hr(
             hr_df=hr_df,
-            swing_times_s=hr_df.attrs.get("bin_swing_times_s", None),
+            swing_times_s=swing_df["t_peak_club"].values - IMU_HR_SYNC_OFFSET_S,
             pre_window_s=3.0,
             max_window_before_swing_s=1.5,
             high_hr_threshold=120
@@ -3803,7 +3804,7 @@ HR/ECG: <b>{hr_file}</b>
             rmssd_mean = np.nan
 
             if hr_df is not None:
-                hr_mean = hr_df["hr"].mean()
+                hr_mean =  hr_df["hr"].median()
                 rmssd_mean = hr_df["rmssd"].mean()
 
             hr_status, hr_icon, hr_status_class = get_hr_status(hr_mean, rmssd_mean)
@@ -3813,7 +3814,7 @@ HR/ECG: <b>{hr_file}</b>
             pre_swing_hr_mean = np.nan
 
             if hr_df is not None:
-                bin_swing_times_s = hr_df.attrs.get("bin_swing_times_s", None)
+                bin_swing_times_s = swing_analysis_df["t_peak_club"].values - IMU_HR_SYNC_OFFSET_S
 
                 pre_swing_hr_df = compute_local_pre_swing_hr(
                     hr_df=hr_df,
@@ -3976,16 +3977,19 @@ HR/ECG: <b>{hr_file}</b>
 
                 st.markdown("""
                 <div class="formula-box">
-                    The ECG .bin file is processed independently from the IMU signals.
-                    Swing markers on this graph are detected from the acceleration channels of the same .bin file,
-                    using the acceleration direction change pattern positive → negative → positive.
+                    The ECG .bin file is processed dependently from the IMU signals thanks to the temporal synchronization.
                     The graph shows the beat-by-beat HR trend during the session, the mean HR,
                     the ±1 SD variability band and the HR points that deviate more than one standard deviation.
                 </div>
                 """, unsafe_allow_html=True)
 
 
-                bin_swing_times_s = hr_df.attrs.get("bin_swing_times_s", None)
+                bin_swing_times_s = swing_analysis_df["t_peak_club"].values - IMU_HR_SYNC_OFFSET_S
+                st.caption(f"DEBUG fs={FS_ECG} dtype={ECG_DTYPE} crop={ECG_CROP} "
+                           f"beats={len(hr_df)} medHR={hr_df['hr'].median():.0f} "
+                           f"ecg_dur={hr_df.attrs['bin_time_s'][-1]:.1f}s "
+                           f"rr_min={hr_df['rr_ms'].min():.0f}")
+
 
                 st.plotly_chart(
                     plot_hr_trend_deviation(
@@ -4021,7 +4025,7 @@ HR/ECG: <b>{hr_file}</b>
                         mime="text/csv"
                     )
 
-                hr_mean_session = hr_df["hr"].mean()
+                hr_mean_session =  hr_df["hr"].median()
                 hr_std_session = hr_df["hr"].std()
                 rmssd_session = hr_df["rmssd"].mean()
 
@@ -4062,7 +4066,7 @@ HR/ECG: <b>{hr_file}</b>
                     <b>Mean HR:</b> {hr_mean_session:.1f} bpm<br>
                     <b>HR standard deviation:</b> {hr_std_session:.1f} bpm<br>
                     <b>Global RMSSD:</b> {rmssd_session:.1f} ms<br>
-                    <b>Note:</b> HR is displayed on its own ECG time axis and is not synchronized with the IMU signals.
+                    <b>Note:</b> HR is displayed on its own ECG time axis and is  synchronized with the IMU signals.
                 </div>
                 """, unsafe_allow_html=True)
 

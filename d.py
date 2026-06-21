@@ -25,6 +25,76 @@ st.markdown("""
 <style>
 
 /* ============================================================
+   METRIC SELECTION PAGE
+   ============================================================ */
+
+.metric-selection-card {
+    background: #FFFFFF;
+    border: 1px solid #DDE6DA;
+    border-radius: 26px;
+    padding: 28px 24px;
+    height: 300px;
+    box-shadow: 0 10px 28px rgba(15, 40, 30, 0.08);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.metric-selection-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 16px 36px rgba(15, 40, 30, 0.14);
+}
+
+.metric-icon {
+    width: 54px;
+    height: 54px;
+    border-radius: 18px;
+    background: #EAF4EC;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    margin-bottom: 16px;
+}
+
+.metric-selection-title {
+    font-size: 24px;
+    font-weight: 900;
+    color: #0B3D2E;
+    margin-bottom: 10px;
+}
+
+.metric-selection-text {
+    font-size: 15px;
+    color: #4B5563;
+    line-height: 1.55;
+    flex-grow: 1;
+}
+
+.metric-status-ready {
+    display: inline-block;
+    margin-top: auto;
+    background: #EAF4EC;
+    color: #0B3D2E;
+    border-radius: 999px;
+    padding: 7px 13px;
+    font-size: 13px;
+    font-weight: 800;
+    width: fit-content;
+}
+
+.metric-status-coming {
+    display: inline-block;
+    margin-top: auto;
+    background: #F1F5F9;
+    color: #64748B;
+    border-radius: 999px;
+    padding: 7px 13px;
+    font-size: 13px;
+    font-weight: 800;
+    width: fit-content;
+}
+/* ============================================================
    INTEGRATED INTERPRETATION PROFESSIONAL DASHBOARD
    ============================================================ */
 
@@ -187,7 +257,9 @@ st.markdown("""
     border-radius: 24px;
     padding: 24px;
     box-shadow: 0 8px 24px rgba(15, 40, 30, 0.08);
-    height: 100%;
+    height: 210px;
+    display: flex;
+    flex-direction: column;
 }
 .card-title {
     font-size: 21px;
@@ -199,6 +271,7 @@ st.markdown("""
     font-size: 15px;
     color: #4B5563;
     line-height: 1.55;
+    flex-grow: 1;
 }
 .big-number {
     font-size: 38px;
@@ -353,8 +426,8 @@ st.markdown("""
     min-height: 320px;
 }
 .athlete-photo-wrap {
-    width: 145px;
-    height: 145px;
+    width: 185px;
+    height: 185px;
     border-radius: 50%;
     overflow: hidden;
     margin: 0 auto 18px auto;
@@ -369,8 +442,9 @@ st.markdown("""
     width: 100%;
     height: 100%;
     object-fit: cover;
-    object-position: center;
+    object-position: center 35%;
     display: block;
+    transform: scale(1.32);
 }
 .athlete-name {
     font-size: 22px;
@@ -402,6 +476,30 @@ st.markdown("""
     font-weight: 800;
     box-shadow: 0 8px 20px rgba(15, 40, 30, 0.18);
 }
+/* ============================================================
+   DOWNLOAD BUTTON VISIBILITY FIX
+   ============================================================ */
+
+div[data-testid="stDownloadButton"] > button {
+    background: linear-gradient(135deg, #0B57D0 0%, #2563EB 100%) !important;
+    color: #FFFFFF !important;
+    border: none !important;
+    border-radius: 16px !important;
+    padding: 0.75rem 1.1rem !important;
+    font-weight: 850 !important;
+    box-shadow: 0 8px 20px rgba(11, 87, 208, 0.22) !important;
+}
+
+div[data-testid="stDownloadButton"] > button * {
+    color: #FFFFFF !important;
+    font-weight: 850 !important;
+}
+
+div[data-testid="stDownloadButton"] > button:hover {
+    background: linear-gradient(135deg, #0847A6 0%, #1D4ED8 100%) !important;
+    color: #FFFFFF !important;
+    transform: translateY(-1px);
+}
 section[data-testid="stSidebar"] {
     background-color: #0B3D2E;
 }
@@ -409,6 +507,48 @@ section[data-testid="stSidebar"] * {
     color: white !important;
 }
 
+/* ============================================================
+   FILE UPLOADER VISIBILITY FIX
+   ============================================================ */
+
+div[data-testid="stFileUploader"] {
+    background: #FFFFFF !important;
+    border: 1px solid #DDE6DA !important;
+    border-radius: 16px !important;
+    padding: 14px !important;
+}
+
+div[data-testid="stFileUploader"] section {
+    background: #F7FAFF !important;
+    border: 1.5px dashed #0B57D0 !important;
+    border-radius: 16px !important;
+}
+
+div[data-testid="stFileUploader"] button {
+    background: linear-gradient(135deg, #0B57D0 0%, #2563EB 100%) !important;
+    color: #FFFFFF !important;
+    border: none !important;
+    border-radius: 14px !important;
+    font-weight: 850 !important;
+    padding: 0.65rem 1rem !important;
+}
+
+div[data-testid="stFileUploader"] button * {
+    color: #FFFFFF !important;
+    font-weight: 850 !important;
+}
+
+div[data-testid="stFileUploader"] small,
+div[data-testid="stFileUploader"] span,
+div[data-testid="stFileUploader"] p {
+    color: #07184A !important;
+    font-weight: 650 !important;
+}
+
+div[data-testid="stFileUploader"] svg {
+    color: #FFFFFF !important;
+    fill: #FFFFFF !important;
+}
 /* ============================================================
    SIDEBAR NAVIGATION WHITE TEXT FIX
    ============================================================ */
@@ -570,7 +710,7 @@ def render_login_page():
 
         name = st.text_input(
             "Name and surname",
-            placeholder="Example: Rachele Costantini"
+            placeholder="Example: Anita Costantini"
         )
 
         club = st.text_input(
@@ -662,7 +802,7 @@ ATHLETES_DB = [
         "name": "Anita",
         "club": "Milano Golf Club",
         "level": "Professional athlete",
-        "last_session": "Session 03",
+        "last_session": "25.05.2026",
         "status": "Data sharing enabled",
         "photo": "assets/anita.jpeg"
     },
@@ -671,16 +811,16 @@ ATHLETES_DB = [
         "name": "Alessandro",
         "club": "Milano Golf Club",
         "level": "Professional athlete",
-        "last_session": "Session 02",
+        "last_session": "15.04.2025",
         "status": "Data sharing enabled",
-        "photo": "assets/alessandro.jepg"
+        "photo": "assets/alessandro.jpeg"
     },
     {
         "id": "stefano",
         "name": "Stefano",
         "club": "Milano Golf Club",
         "level": "Professional athlete",
-        "last_session": "Session 01",
+        "last_session": "18.05.2026",
         "status": "Data sharing enabled",
         "photo": "assets/stefano.jpeg"
     }
@@ -696,11 +836,21 @@ def get_athletes_for_club(club_name):
 def select_athlete(athlete):
     st.session_state.selected_athlete = athlete["id"]
     st.session_state.selected_athlete_name = athlete["name"]
+
+    # After selecting an athlete, open the metrics selection page
+    st.session_state.page = "Session Analysis"
+    st.session_state.pending_page = "Session Analysis"
+
+    # Important: reset selected metric, so it does NOT open directly the interpretation
+    st.session_state.selected_metric = None
+
     st.rerun()
 def select_metric(metric_name):
     st.session_state.selected_metric = metric_name
     st.rerun()
-
+def go_to_page(page_name):
+    st.session_state.pending_page = page_name
+    st.rerun()
 def render_coach_athlete_roster():
     athletes = get_athletes_for_club(st.session_state.user_club)
 
@@ -1026,7 +1176,7 @@ def standardize_hr_columns(df):
 FS_ECG = 250
 ECG_CROP = 1375
 ECG_NUM_CHANNELS = 4
-ECG_DTYPE = ">i4"
+ECG_DTYPE = "<i4"
 
 
 def load_ecg_bin_from_upload(uploaded_file):
@@ -2108,8 +2258,30 @@ def plot_filtered_preview(club_df, sacral_df):
         yaxis_title="Resultant acceleration",
         height=500,
         template="plotly_white",
-        legend=dict(orientation="h", y=-0.25),
+        paper_bgcolor="white",
+        plot_bgcolor="white",
+        font=dict(color="#07184A"),
+        title_font=dict(color="#07184A"),
+        legend=dict(
+            orientation="h",
+            y=-0.25,
+            font=dict(color="#07184A")
+        ),
         margin=dict(l=20, r=20, t=60, b=70)
+    )
+
+    fig.update_xaxes(
+        showgrid=True,
+        gridcolor="#E5E7EB",
+        zeroline=False,
+        color="#07184A"
+    )
+
+    fig.update_yaxes(
+        showgrid=True,
+        gridcolor="#E5E7EB",
+        zeroline=False,
+        color="#07184A"
     )
 
     return fig
@@ -2257,7 +2429,25 @@ def plot_swing_metric_variation(swing_df, y_col, title, y_title):
         yaxis_title=y_title,
         height=420,
         template="plotly_white",
+        paper_bgcolor="white",
+        plot_bgcolor="white",
+        font=dict(color="#07184A"),
+        title_font=dict(color="#07184A"),
         margin=dict(l=20, r=20, t=60, b=60)
+    )
+
+    fig.update_xaxes(
+        showgrid=True,
+        gridcolor="#E5E7EB",
+        zeroline=False,
+        color="#07184A"
+    )
+
+    fig.update_yaxes(
+        showgrid=True,
+        gridcolor="#E5E7EB",
+        zeroline=False,
+        color="#07184A"
     )
 
     return fig
@@ -2288,17 +2478,44 @@ def plot_tempo_ratio_vs_delta_t(swing_df):
 
     fig.update_layout(
         title="Tempo Ratio vs Body–Club Peak Timing Delay",
-        xaxis=dict(title="Swing Number"),
-        yaxis=dict(title="Tempo Ratio", side="left"),
-        yaxis2=dict(title="Δt A5-A4 [s]", overlaying="y", side="right"),
+        xaxis=dict(
+            title="Swing Number",
+            color="#07184A",
+            showgrid=True,
+            gridcolor="#E5E7EB",
+            zeroline=False
+        ),
+        yaxis=dict(
+            title="Tempo Ratio",
+            side="left",
+            color="#07184A",
+            showgrid=True,
+            gridcolor="#E5E7EB",
+            zeroline=False
+        ),
+        yaxis2=dict(
+            title="Δt A5-A4 [s]",
+            overlaying="y",
+            side="right",
+            color="#07184A",
+            showgrid=False,
+            zeroline=False
+        ),
         height=450,
         template="plotly_white",
-        legend=dict(orientation="h", y=-0.25),
+        paper_bgcolor="white",
+        plot_bgcolor="white",
+        font=dict(color="#07184A"),
+        title_font=dict(color="#07184A"),
+        legend=dict(
+            orientation="h",
+            y=-0.25,
+            font=dict(color="#07184A")
+        ),
         margin=dict(l=20, r=20, t=60, b=70)
     )
 
     return fig
-
 
 def plot_motion_physiology_overlay(club_df, sacral_df, hr_df):
     fig = go.Figure()
@@ -2427,7 +2644,6 @@ def plot_hr_trend_deviation(hr_df, swing_times_s=None, pre_window_s=3.0, close_w
         y_top = hr_df["hr"].max()
 
         for i, t_swing in enumerate(swing_times_s):
-            # Full 3-second pre-swing window
             fig.add_vrect(
                 x0=t_swing - pre_window_s,
                 x1=t_swing,
@@ -2436,7 +2652,6 @@ def plot_hr_trend_deviation(hr_df, swing_times_s=None, pre_window_s=3.0, close_w
                 layer="below"
             )
 
-            # Close pre-swing window used for the advice
             fig.add_vrect(
                 x0=t_swing - close_window_s,
                 x1=t_swing,
@@ -2469,8 +2684,30 @@ def plot_hr_trend_deviation(hr_df, swing_times_s=None, pre_window_s=3.0, close_w
         yaxis_title="Heart Rate [bpm]",
         height=470,
         template="plotly_white",
-        legend=dict(orientation="h", y=-0.25),
+        paper_bgcolor="white",
+        plot_bgcolor="white",
+        font=dict(color="#07184A"),
+        title_font=dict(color="#07184A"),
+        legend=dict(
+            orientation="h",
+            y=-0.25,
+            font=dict(color="#07184A")
+        ),
         margin=dict(l=20, r=20, t=60, b=70)
+    )
+
+    fig.update_xaxes(
+        showgrid=True,
+        gridcolor="#E5E7EB",
+        zeroline=False,
+        color="#07184A"
+    )
+
+    fig.update_yaxes(
+        showgrid=True,
+        gridcolor="#E5E7EB",
+        zeroline=False,
+        color="#07184A"
     )
 
     return fig
@@ -2587,11 +2824,29 @@ if st.sidebar.button("Logout"):
 
 st.sidebar.markdown("---")
 
-page = st.sidebar.radio(
+PAGES = ["Home", "Session Analysis", "Metrics Explanation"]
+
+if "page" not in st.session_state:
+    st.session_state.page = "Home"
+
+# If a button asked to change page, apply it BEFORE creating the sidebar widget
+if "pending_page" in st.session_state:
+    st.session_state.page = st.session_state.pending_page
+    del st.session_state.pending_page
+
+# Keep sidebar radio synchronized BEFORE the widget is created
+if "sidebar_navigation" not in st.session_state:
+    st.session_state.sidebar_navigation = st.session_state.page
+else:
+    st.session_state.sidebar_navigation = st.session_state.page
+
+st.sidebar.radio(
     "Navigation",
-    ["Home", "Session Analysis", "Metrics Explanation"]
+    PAGES,
+    key="sidebar_navigation"
 )
 
+st.session_state.page = st.session_state.sidebar_navigation
 st.sidebar.markdown("---")
 
 fs = st.sidebar.selectbox(
@@ -2627,10 +2882,483 @@ club_prominence = st.sidebar.slider(
 st.sidebar.caption("Suggested setup: 120 Hz, club 10 Hz, sacral 6 Hz.")
 
 # ============================================================
+# SESSION COMPARISON FUNCTIONS
+# ============================================================
+
+PRELOADED_SESSIONS = {
+    "Session 1": {
+        "club": "data/A4_prima.csv",
+        "sacral": "data/A5_prima.csv",
+        "hr": "data/SignalsSave_051358.bin"
+    },
+    "Session 2": {
+        "club": "data/A4_dopo.csv",
+        "sacral": "data/A5_dopo.csv",
+        "hr": "data/SignalsSave_052232.bin"
+    }
+}
+
+
+def compute_session_summary(session_name, fs, club_cutoff, sacral_cutoff, club_prominence):
+    files = PRELOADED_SESSIONS.get(session_name)
+
+    if files is None:
+        return None, None
+
+    club_raw = read_local_file(files["club"])
+    sacral_raw = read_local_file(files["sacral"])
+
+    club_df = standardize_imu_columns(club_raw, fs=fs)
+    sacral_df = standardize_imu_columns(sacral_raw, fs=fs)
+
+    if club_df is None or sacral_df is None:
+        return None, None
+
+    swing_df, club_peak_df, sacral_peak_df = analyze_five_swings(
+        club_df,
+        sacral_df,
+        fs=fs,
+        club_cutoff=club_cutoff,
+        sacral_cutoff=sacral_cutoff,
+        expected_swings=5,
+        min_distance_s=3.0,
+        club_prominence=club_prominence,
+        search_window_s=1.5,
+        t_start_analysis=5.0,
+        pre_flat_window_s=2.0,
+        baseline_margin=1.0,
+        post_peak_window_s=1.0,
+        return_margin=2.0
+    )
+
+    if swing_df.empty:
+        return None, None
+
+    hr_df = None
+    if files["hr"] is not None:
+        hr_df = process_ecg_bin_path_to_hr(files["hr"])
+
+    tempo_ratio = swing_df["tempo_ratio"].mean()
+    delta_t = swing_df["delta_t"].mean()
+    cv_tempo = coefficient_of_variation(swing_df["tempo_ratio"])
+    cv_delta = coefficient_of_variation(swing_df["delta_t"])
+
+    hr_mean = np.nan
+    rmssd_mean = np.nan
+    pre_swing_high_hr = False
+    pre_swing_hr_max = np.nan
+
+    if hr_df is not None:
+        hr_mean = hr_df["hr"].mean()
+        rmssd_mean = hr_df["rmssd"].mean()
+
+        pre_swing_hr_df = compute_local_pre_swing_hr(
+            hr_df=hr_df,
+            swing_times_s=hr_df.attrs.get("bin_swing_times_s", None),
+            pre_window_s=3.0,
+            max_window_before_swing_s=1.5,
+            high_hr_threshold=120
+        )
+
+        if not pre_swing_hr_df.empty:
+            pre_swing_high_hr = pre_swing_hr_df["High_HR_before_swing"].any()
+            pre_swing_hr_max = pre_swing_hr_df["HR_pre_swing_max_close"].max()
+
+    output, explanation, output_class = classify_interpretation(
+        tempo_ratio=tempo_ratio,
+        delta_t=delta_t,
+        hr_mean=hr_mean,
+        rmssd_mean=rmssd_mean,
+        pre_swing_high_hr=pre_swing_high_hr,
+        pre_swing_hr_mean=pre_swing_hr_max,
+        swing_df=swing_df
+    )
+
+    summary = {
+        "Session": session_name,
+        "Mean Tempo Ratio": tempo_ratio,
+        "CV Tempo Ratio [%]": cv_tempo,
+        "Mean Δt body-club [s]": delta_t,
+        "CV Δt [%]": cv_delta,
+        "Mean HR [bpm]": hr_mean,
+        "Mean RMSSD [ms]": rmssd_mean,
+        "Max pre-swing HR [bpm]": pre_swing_hr_max,
+        "High pre-swing HR": pre_swing_high_hr,
+        "Integrated output": output
+    }
+
+    return summary, swing_df
+
+
+def plot_comparison_bar(comparison_df, y_col, title, y_title):
+    fig = go.Figure()
+
+    fig.add_trace(go.Bar(
+        x=comparison_df["Session"],
+        y=comparison_df[y_col],
+        name=y_title
+    ))
+
+    fig.update_layout(
+        title=title,
+        xaxis_title="Session",
+        yaxis_title=y_title,
+        height=420,
+        template="plotly_white",
+        paper_bgcolor="white",
+        plot_bgcolor="white",
+        font=dict(color="#07184A"),
+        title_font=dict(color="#07184A"),
+        margin=dict(l=20, r=20, t=60, b=60)
+    )
+
+    fig.update_xaxes(
+        showgrid=False,
+        zeroline=False,
+        color="#07184A"
+    )
+
+    fig.update_yaxes(
+        showgrid=True,
+        gridcolor="#E5E7EB",
+        zeroline=False,
+        color="#07184A"
+    )
+
+    return fig
+
+# ============================================================
+# SESSION COMPARISON FUNCTIONS
+# ============================================================
+
+PRELOADED_SESSIONS = {
+    "Session 1": {
+        "club": "data/A4_prima.csv",
+        "sacral": "data/A5_prima.csv",
+        "hr": "data/SignalsSave_051358.bin"
+    },
+    "Session 2": {
+        "club": "data/A4_dopo.csv",
+        "sacral": "data/A5_dopo.csv",
+        "hr": "data/SignalsSave_052232.bin"
+    }
+}
+
+
+def compute_session_summary(session_name, fs, club_cutoff, sacral_cutoff, club_prominence):
+    files = PRELOADED_SESSIONS.get(session_name)
+
+    if files is None:
+        return None, None
+
+    club_raw = read_local_file(files["club"])
+    sacral_raw = read_local_file(files["sacral"])
+
+    club_df = standardize_imu_columns(club_raw, fs=fs)
+    sacral_df = standardize_imu_columns(sacral_raw, fs=fs)
+
+    if club_df is None or sacral_df is None:
+        return None, None
+
+    swing_df, club_peak_df, sacral_peak_df = analyze_five_swings(
+        club_df,
+        sacral_df,
+        fs=fs,
+        club_cutoff=club_cutoff,
+        sacral_cutoff=sacral_cutoff,
+        expected_swings=5,
+        min_distance_s=3.0,
+        club_prominence=club_prominence,
+        search_window_s=1.5,
+        t_start_analysis=5.0,
+        pre_flat_window_s=2.0,
+        baseline_margin=1.0,
+        post_peak_window_s=1.0,
+        return_margin=2.0
+    )
+
+    if swing_df.empty:
+        return None, None
+
+    hr_df = None
+
+    if files["hr"] is not None:
+        hr_df = process_ecg_bin_path_to_hr(files["hr"])
+
+    tempo_ratio = swing_df["tempo_ratio"].mean()
+    delta_t = swing_df["delta_t"].mean()
+    cv_tempo = coefficient_of_variation(swing_df["tempo_ratio"])
+    cv_delta = coefficient_of_variation(swing_df["delta_t"])
+
+    hr_mean = np.nan
+    rmssd_mean = np.nan
+    pre_swing_hr_max = np.nan
+    pre_swing_high_hr = False
+
+    if hr_df is not None:
+        hr_mean = hr_df["hr"].mean()
+        rmssd_mean = hr_df["rmssd"].mean()
+
+        pre_swing_hr_df = compute_local_pre_swing_hr(
+            hr_df=hr_df,
+            swing_times_s=hr_df.attrs.get("bin_swing_times_s", None),
+            pre_window_s=3.0,
+            max_window_before_swing_s=1.5,
+            high_hr_threshold=120
+        )
+
+        if not pre_swing_hr_df.empty:
+            pre_swing_hr_max = pre_swing_hr_df["HR_pre_swing_max_close"].max()
+            pre_swing_high_hr = pre_swing_hr_df["High_HR_before_swing"].any()
+
+    output, explanation, output_class = classify_interpretation(
+        tempo_ratio=tempo_ratio,
+        delta_t=delta_t,
+        hr_mean=hr_mean,
+        rmssd_mean=rmssd_mean,
+        pre_swing_high_hr=pre_swing_high_hr,
+        pre_swing_hr_mean=pre_swing_hr_max,
+        swing_df=swing_df
+    )
+
+    summary = {
+        "Session": session_name,
+        "Mean Tempo Ratio": tempo_ratio,
+        "CV Tempo Ratio [%]": cv_tempo,
+        "Mean Δt body-club [s]": delta_t,
+        "CV Δt [%]": cv_delta,
+        "Mean HR [bpm]": hr_mean,
+        "Mean RMSSD [ms]": rmssd_mean,
+        "Max pre-swing HR [bpm]": pre_swing_hr_max,
+        "High pre-swing HR": pre_swing_high_hr,
+        "Integrated output": output
+    }
+
+    return summary, swing_df
+
+
+def plot_comparison_bar(comparison_df, y_col, title, y_title):
+    fig = go.Figure()
+
+    fig.add_trace(go.Bar(
+        x=comparison_df["Session"],
+        y=comparison_df[y_col],
+        name=y_title
+    ))
+
+    fig.update_layout(
+        title=title,
+        xaxis_title="Session",
+        yaxis_title=y_title,
+        height=420,
+        template="plotly_white",
+        paper_bgcolor="white",
+        plot_bgcolor="white",
+        font=dict(color="#07184A"),
+        title_font=dict(color="#07184A"),
+        margin=dict(l=20, r=20, t=60, b=60)
+    )
+
+    fig.update_xaxes(
+        showgrid=False,
+        zeroline=False,
+        color="#07184A"
+    )
+
+    fig.update_yaxes(
+        showgrid=True,
+        gridcolor="#E5E7EB",
+        zeroline=False,
+        color="#07184A"
+    )
+
+    return fig
+
+
+def render_session_comparison_page(fs, club_cutoff, sacral_cutoff, club_prominence):
+
+    st.markdown('<div class="section-title">Session Comparison</div>', unsafe_allow_html=True)
+
+    st.markdown("""
+    <div class="formula-box">
+        This section compares two preloaded training sessions. 
+        The goal is to understand whether the athlete improved, worsened or maintained a similar behaviour
+        in terms of rhythm, repeatability, body–club transfer and physiological state.
+    </div>
+    """, unsafe_allow_html=True)
+
+    selected_sessions = st.multiselect(
+        "Select sessions to compare",
+        list(PRELOADED_SESSIONS.keys()),
+        default=["Session 1", "Session 2"]
+    )
+
+    if len(selected_sessions) < 2:
+        st.info("Select at least two sessions to start the comparison.")
+        return
+
+    comparison_rows = []
+    swing_tables = {}
+
+    for session_name in selected_sessions:
+        summary, swing_df = compute_session_summary(
+            session_name=session_name,
+            fs=fs,
+            club_cutoff=club_cutoff,
+            sacral_cutoff=sacral_cutoff,
+            club_prominence=club_prominence
+        )
+
+        if summary is not None:
+            comparison_rows.append(summary)
+            swing_tables[session_name] = swing_df
+
+    if len(comparison_rows) < 2:
+        st.error("Not enough valid sessions were available for comparison.")
+        return
+
+    comparison_df = pd.DataFrame(comparison_rows)
+
+    st.markdown("---")
+    st.markdown('<div class="section-title">Comparison Summary</div>', unsafe_allow_html=True)
+
+    st.dataframe(
+        comparison_df,
+        use_container_width=True,
+        hide_index=True
+    )
+
+    csv_comparison = comparison_df.to_csv(index=False).encode("utf-8")
+
+    st.download_button(
+        "Download session comparison results",
+        data=csv_comparison,
+        file_name="session_comparison_results.csv",
+        mime="text/csv"
+    )
+
+    st.markdown("---")
+    st.markdown('<div class="section-title">Main Comparison Plots</div>', unsafe_allow_html=True)
+
+    c1, c2 = st.columns(2)
+
+    with c1:
+        st.plotly_chart(
+            plot_comparison_bar(
+                comparison_df,
+                "Mean Tempo Ratio",
+                "Mean Tempo Ratio across sessions",
+                "Mean Tempo Ratio"
+            ),
+            use_container_width=True,
+            theme=None
+        )
+
+    with c2:
+        st.plotly_chart(
+            plot_comparison_bar(
+                comparison_df,
+                "Mean Δt body-club [s]",
+                "Mean Body–Club Delay across sessions",
+                "Mean Δt [s]"
+            ),
+            use_container_width=True,
+            theme=None
+        )
+
+    c3, c4 = st.columns(2)
+
+    with c3:
+        st.plotly_chart(
+            plot_comparison_bar(
+                comparison_df,
+                "CV Tempo Ratio [%]",
+                "Rhythm Repeatability across sessions",
+                "CV Tempo Ratio [%]"
+            ),
+            use_container_width=True,
+            theme=None
+        )
+
+    with c4:
+        st.plotly_chart(
+            plot_comparison_bar(
+                comparison_df,
+                "Mean HR [bpm]",
+                "Mean Heart Rate across sessions",
+                "Mean HR [bpm]"
+            ),
+            use_container_width=True,
+            theme=None
+        )
+
+    st.markdown("---")
+    st.markdown('<div class="section-title">Integrated Comparison Interpretation</div>', unsafe_allow_html=True)
+
+    first = comparison_df.iloc[0]
+    last = comparison_df.iloc[-1]
+
+    interpretation_text = ""
+
+    if abs(last["Mean Tempo Ratio"] - 3.0) < abs(first["Mean Tempo Ratio"] - 3.0):
+        interpretation_text += (
+            "The latest session shows a Tempo Ratio closer to the 3:1 reference, "
+            "suggesting an improvement in swing rhythm. "
+        )
+    else:
+        interpretation_text += (
+            "The latest session does not show a clear improvement in Tempo Ratio compared with the first session. "
+        )
+
+    if abs(last["Mean Δt body-club [s]"]) < abs(first["Mean Δt body-club [s]"]):
+        interpretation_text += (
+            "The body–club timing delay is lower in the latest session, suggesting a better transfer "
+            "from body motion to club motion. "
+        )
+    else:
+        interpretation_text += (
+            "The body–club timing delay is not reduced in the latest session, so coordination should still be monitored. "
+        )
+
+    if last["CV Tempo Ratio [%]"] < first["CV Tempo Ratio [%]"]:
+        interpretation_text += (
+            "Rhythm repeatability improved because the coefficient of variation of Tempo Ratio decreased. "
+        )
+    else:
+        interpretation_text += (
+            "Rhythm repeatability did not clearly improve because the coefficient of variation did not decrease. "
+        )
+
+    if not np.isnan(last["Mean HR [bpm]"]) and not np.isnan(first["Mean HR [bpm]"]):
+        if last["Mean HR [bpm]"] < first["Mean HR [bpm]"]:
+            interpretation_text += (
+                "The mean HR is lower in the latest session, suggesting lower physiological activation. "
+            )
+        else:
+            interpretation_text += (
+                "The mean HR is higher in the latest session, suggesting greater physiological activation. "
+            )
+
+    st.markdown(f"""
+    <div class="coach-advice-box">
+        <div class="coach-advice-title">Session-to-session interpretation</div>
+        <div class="coach-advice-text">
+            {interpretation_text}
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown("---")
+    st.markdown('<div class="section-title">Swing-by-Swing Tables by Session</div>', unsafe_allow_html=True)
+
+    for session_name, swing_df in swing_tables.items():
+        with st.expander(f"{session_name} swing-by-swing results", expanded=False):
+            st.dataframe(swing_df, use_container_width=True)
+# ============================================================
 # HOME PAGE
 # ============================================================
 
-if page == "Home":
+if st.session_state.page == "Home":
 
     st.markdown("""
     <div class="hero">
@@ -2668,45 +3396,69 @@ if page == "Home":
         </div>
         """, unsafe_allow_html=True)
 
-    st.markdown('<div class="section-title">Validation Metrics by Session</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-title">Training Session Workflow</div>', unsafe_allow_html=True)
+
+    st.markdown("""
+    <div class="section-subtitle">
+    The app follows a simple three-step workflow: upload the sensor data, analyse the swing performance,
+    and receive an integrated interpretation with practical feedback.
+    </div>
+    """, unsafe_allow_html=True)
 
     c1, c2, c3 = st.columns(3)
 
     with c1:
         st.markdown("""
-        <div class="card">
-            <div class="card-title">Session 01 — Baseline Training</div>
-            <div class="card-text">
-                First reference session used to understand the athlete’s normal rhythm and coordination.
-            </div>
-            <div class="big-number">1</div>
-            <p>Rhythm · Repeatability · HR/HRV</p>
-        </div>
-        """, unsafe_allow_html=True)
+    <div class="metric-selection-card">
+    <div class="metric-icon">📤</div>
+    <div class="metric-selection-title">1. Upload Data</div>
+    <div class="metric-selection-text">
+    Import the data collected during the training session from the club IMU, body IMU and HR/HRV sensor.
+    This allows the app to combine technical movement data with physiological information.
+    </div>
+    <div class="metric-status-ready">Input phase</div>
+    </div>
+    """, unsafe_allow_html=True)
 
     with c2:
         st.markdown("""
-        <div class="card">
-            <div class="card-title">Session 02 — Repeated Swings</div>
-            <div class="card-text">
-                Evaluation of rhythm consistency across multiple shots and body–club timing.
-            </div>
-            <div class="big-number">2</div>
-            <p>Tempo Ratio · Δt · CV</p>
-        </div>
-        """, unsafe_allow_html=True)
+    <div class="metric-selection-card">
+    <div class="metric-icon">📊</div>
+    <div class="metric-selection-title">2. Analyse Performance</div>
+    <div class="metric-selection-text">
+    The app calculates key indicators such as Tempo Ratio, body–club delay Δt, repeatability through CV,
+    heart rate and HRV/RMSSD.
+    </div>
+    <div class="metric-status-ready">Analysis phase</div>
+    </div>
+    """, unsafe_allow_html=True)
 
     with c3:
         st.markdown("""
-        <div class="card">
-            <div class="card-title">Session 03 — Physiological Context</div>
-            <div class="card-text">
-                Analysis of whether rhythm and repeatability change under different physiological states.
-            </div>
-            <div class="big-number">3</div>
-            <p>HR · HRV · Interpretation</p>
-        </div>
-        """, unsafe_allow_html=True)
+    <div class="metric-selection-card">
+    <div class="metric-icon">💡</div>
+    <div class="metric-selection-title">3. Receive Interpretation</div>
+    <div class="metric-selection-text">
+    The final output combines technical and physiological information to explain how the session went
+    and provide swing-by-swing recommendations.
+    </div>
+    <div class="metric-status-ready">Feedback phase</div>
+    </div>
+    """, unsafe_allow_html=True)
+    st.markdown("---")
+    st.markdown('<div class="section-title">Quick access</div>', unsafe_allow_html=True)
+
+    q1, q2 = st.columns(2)
+
+    with q1:
+        if st.button("Start Session Analysis", use_container_width=True):
+            st.session_state.pending_page = "Session Analysis"
+            st.rerun()
+
+    with q2:
+        if st.button("Open Metrics Explanation", use_container_width=True):
+            st.session_state.pending_page = "Metrics Explanation"
+            st.rerun()
 
     st.markdown("---")
     st.markdown('<div class="section-title">What the app adds</div>', unsafe_allow_html=True)
@@ -2748,7 +3500,7 @@ if page == "Home":
 # SESSION ANALYSIS PAGE
 # ============================================================
 
-elif page == "Session Analysis":
+elif st.session_state.page == "Session Analysis":
 
     st.markdown("""
     <div class="hero">
@@ -2759,7 +3511,8 @@ elif page == "Session Analysis":
         </div>
     </div>
     """, unsafe_allow_html=True)
-
+    if st.button("← Back to Home", key="back_home_from_session"):
+        go_to_page("Home")
     if st.session_state.user_role == "Coach" and not st.session_state.selected_athlete_name:
         st.warning("Please select an athlete from the Home page before opening the session analysis.")
         st.stop()
@@ -2769,65 +3522,72 @@ elif page == "Session Analysis":
         <b>Current athlete:</b> {st.session_state.selected_athlete_name}
     </div>
     """, unsafe_allow_html=True)
+    
 
 
-    st.markdown('<div class="section-title">Select the metric to analyse</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-title">Choose the performance area to analyse</div>', unsafe_allow_html=True)
 
     st.markdown("""
-    <div class="section-subtitle">
-        Choose which performance dimension you want to open. 
-        The Rhythm section contains the complete analysis currently available in the app.
-    </div>
-    """, unsafe_allow_html=True)
+<div class="section-subtitle">
+Select the training dimension you want to explore. Each area focuses on a different aspect of the swing and athlete performance.
+</div>
+""", unsafe_allow_html=True)
 
     mcol1, mcol2, mcol3 = st.columns(3)
 
     with mcol1:
         st.markdown("""
-        <div class="card">
-            <div class="card-title">Ritmo</div>
-            <div class="card-text">
-                Analyse swing timing, tempo ratio, repeatability across the five swings,
-                body–club timing delay and physiological context.
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
+<div class="metric-selection-card">
+<div class="metric-icon">⏱️</div>
+<div class="metric-selection-title">Rhythm</div>
+<div class="metric-selection-text">
+Analyse swing timing, Tempo Ratio, repeatability across the five swings, body–club timing delay and physiological context.
+</div>
+<div class="metric-status-ready">Available now</div>
+</div>
+""", unsafe_allow_html=True)
 
-        if st.button("Open Ritmo analysis", use_container_width=True):
+        if st.button("Open Rhythm analysis", use_container_width=True):
             select_metric("Ritmo")
 
     with mcol2:
         st.markdown("""
-        <div class="card">
-            <div class="card-title">Stabilità</div>
-            <div class="card-text">
-                Future section dedicated to trunk stability, body control and movement consistency.
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
+<div class="metric-selection-card">
+<div class="metric-icon">🧍</div>
+<div class="metric-selection-title">Stability</div>
+<div class="metric-selection-text">
+Future section dedicated to trunk stability, body control, postural consistency and movement repeatability during the swing.
+</div>
+<div class="metric-status-coming">Coming soon</div>
+</div>
+""", unsafe_allow_html=True)
 
-        if st.button("Open Stabilità analysis", use_container_width=True):
-            select_metric("Stabilità")
+        if st.button("Open Stability analysis", use_container_width=True):
+            select_metric("Stability")
 
     with mcol3:
         st.markdown("""
-        <div class="card">
-            <div class="card-title">Forza</div>
-            <div class="card-text">
-                Future section dedicated to acceleration intensity, force-related indicators
-                and power expression during the swing.
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
+<div class="metric-selection-card">
+<div class="metric-icon">⚡</div>
+<div class="metric-selection-title">Power</div>
+<div class="metric-selection-text">
+Future section dedicated to acceleration intensity, force-related indicators and power expression during the swing.
+</div>
+<div class="metric-status-coming">Coming soon</div>
+</div>
+""", unsafe_allow_html=True)
 
-        if st.button("Open Forza analysis", use_container_width=True):
-            select_metric("Forza")
+        if st.button("Open Power analysis", use_container_width=True):
+            select_metric("Power")
+        
 
     st.markdown("---")
 
     if st.session_state.selected_metric is None:
         st.info("Select a metric to open the corresponding analysis.")
         st.stop()
+
+    
 
     if st.session_state.selected_metric != "Ritmo":
         st.markdown(f"""
@@ -2843,76 +3603,130 @@ elif page == "Session Analysis":
 
         st.stop()
 
-    if st.button("← Back to metric selection"):
+    if st.button("← Back to performance areas", key="back_to_metric_selection"):
         st.session_state.selected_metric = None
         st.rerun()
 
-    st.markdown('<div class="section-title">Ritmo Analysis</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-title">Rhythm Analysis</div>', unsafe_allow_html=True)
 
+    rhythm_mode = st.radio(
+        "Choose rhythm analysis mode",
+        ["Single session analysis", "Compare sessions"],
+        horizontal=True,
+        key="rhythm_analysis_mode"
+    )
 
-    session_name = st.selectbox("Select session", ["Session 1", "Session 2", "Session 3"])
-
-
-    
-
-data_source = st.radio(
-    "Select data source",
-    ["Upload files manually", "Use preloaded Session 1 data"],
-    horizontal=True
-)
-if data_source == "Upload files manually":
-    u1, u2, u3 = st.columns(3)
-
-    with u1:
-        st.markdown("""
-        <div class="upload-card">
-            <div class="upload-title">Club Motion</div>
-            <div class="upload-icon">🏌️</div>
-            <div class="upload-description">
-                Upload the <b>club-mounted IMU</b> file, for example <b>A4_prima.csv</b>.
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
-
-        club_file = st.file_uploader(
-            "Upload Club IMU file",
-            type=["csv", "xlsx", "xls", "bin"],
-            key="club_file"
+    if rhythm_mode == "Compare sessions":
+        render_session_comparison_page(
+            fs=fs,
+            club_cutoff=club_cutoff,
+            sacral_cutoff=sacral_cutoff,
+            club_prominence=club_prominence
         )
+        st.stop()
 
-    with u2:
-        st.markdown("""
-        <div class="upload-card">
-            <div class="upload-title">Body Motion</div>
-            <div class="upload-icon">🧍</div>
-            <div class="upload-description">
-                Upload the <b>sacral IMU</b> file, for example <b>A5_prima.csv</b>.
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
+    session_name = st.selectbox(
+        "Select session",
+        ["Session 1", "Session 2", "Session 3"],
+        key="session_selectbox_rhythm"
+    )
 
-        sacral_file = st.file_uploader(
-            "Upload Sacral IMU file",
-            type=["csv", "xlsx", "xls"],
-            key="sacral_file"
-        )
+    data_source = st.radio(
+        "Select data source",
+        ["Upload files manually", "Use preloaded data for selected session"],
+        horizontal=True,
+        key="data_source_selector"
+    )
 
-    with u3:
-        st.markdown("""
-        <div class="upload-card">
-            <div class="upload-title">Physiological State</div>
-            <div class="upload-icon">❤️</div>
-            <div class="upload-description">
-                Optional: upload an <b>HR/HRV</b> file to add physiological context.
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
+    club_file = None
+    sacral_file = None
+    hr_file = None
 
-        hr_file = st.file_uploader(
-            "Upload HR/HRV file",
-            type=["csv", "xlsx", "xls", "bin"],
-            key="hr_file"
-        )
+    if data_source == "Upload files manually":
+
+        u1, u2, u3 = st.columns(3)
+
+        with u1:
+            st.markdown("""
+<div class="upload-card">
+<div class="upload-title">Club Motion</div>
+<div class="upload-icon">🏌️</div>
+<div class="upload-description">
+Upload the <b>club-mounted IMU</b> file, for example <b>A4_prima.csv</b>.
+</div>
+</div>
+""", unsafe_allow_html=True)
+
+            club_file = st.file_uploader(
+                "Upload Club IMU file",
+                type=["csv", "xlsx", "xls", "bin"],
+                key="club_file"
+            )
+
+        with u2:
+            st.markdown("""
+<div class="upload-card">
+<div class="upload-title">Body Motion</div>
+<div class="upload-icon">🧍</div>
+<div class="upload-description">
+Upload the <b>sacral IMU</b> file, for example <b>A5_prima.csv</b>.
+</div>
+</div>
+""", unsafe_allow_html=True)
+
+            sacral_file = st.file_uploader(
+                "Upload Sacral IMU file",
+                type=["csv", "xlsx", "xls"],
+                key="sacral_file"
+            )
+
+        with u3:
+            st.markdown("""
+<div class="upload-card">
+<div class="upload-title">Physiological State</div>
+<div class="upload-icon">❤️</div>
+<div class="upload-description">
+Optional: upload an <b>HR/HRV</b> file to add physiological context.
+</div>
+</div>
+""", unsafe_allow_html=True)
+
+            hr_file = st.file_uploader(
+                "Upload HR/HRV file",
+                type=["csv", "xlsx", "xls", "bin"],
+                key="hr_file"
+            )
+
+    else:
+        if session_name == "Session 1":
+            club_file = "data/A4_prima.csv"
+            sacral_file = "data/A5_prima.csv"
+            hr_file = "data/SignalsSave_051358.bin"
+
+        elif session_name == "Session 2":
+            club_file = "data/A4_dopo.csv"
+            sacral_file = "data/A5_dopo.csv"
+            hr_file = "data/SignalsSave_052232.bin"
+
+        else:
+            club_file = None
+            sacral_file = None
+            hr_file = None
+
+            st.warning(
+                "Preloaded data are currently available only for Session 1 and Session 2."
+            )
+
+        if club_file is not None and sacral_file is not None:
+            st.markdown(f"""
+<div class="formula-box">
+<b>Preloaded {session_name} data selected.</b><br>
+The app is using the local files:<br>
+Club IMU: <b>{club_file}</b><br>
+Body IMU: <b>{sacral_file}</b><br>
+HR/ECG: <b>{hr_file}</b>
+</div>
+""", unsafe_allow_html=True)
 
     st.markdown("---")
 
@@ -3041,6 +3855,7 @@ if data_source == "Upload files manually":
             st.plotly_chart(
                 plot_filtered_preview(club_peak_df, sacral_peak_df),
                 use_container_width=True,
+                theme=None,
                 key="signal_preview_filtered_imu"
             )
 
@@ -3119,6 +3934,7 @@ if data_source == "Upload files manually":
                         "Tempo Ratio variation across 5 swings",
                         "Tempo Ratio"
                     ),
+                    theme=None,
                     use_container_width=True
                 )
 
@@ -3130,11 +3946,13 @@ if data_source == "Upload files manually":
                         "Body–Club Peak Delay variation across 5 swings",
                         "Δt [s]"
                     ),
+                    theme=None,
                     use_container_width=True
                 )
 
             st.plotly_chart(
                 plot_tempo_ratio_vs_delta_t(swing_analysis_df),
+                theme=None,
                 use_container_width=True
             )
 
@@ -3145,6 +3963,110 @@ if data_source == "Upload files manually":
                 <b>Interpretation:</b> a lower CV indicates higher repeatability across the five swings.
             </div>
             """, unsafe_allow_html=True)
+
+
+
+            
+
+           
+
+            if hr_df is not None:
+                st.markdown("---")
+                st.markdown('<div class="section-title">Heart Rate Trend During Session</div>', unsafe_allow_html=True)
+
+                st.markdown("""
+                <div class="formula-box">
+                    The ECG .bin file is processed independently from the IMU signals.
+                    Swing markers on this graph are detected from the acceleration channels of the same .bin file,
+                    using the acceleration direction change pattern positive → negative → positive.
+                    The graph shows the beat-by-beat HR trend during the session, the mean HR,
+                    the ±1 SD variability band and the HR points that deviate more than one standard deviation.
+                </div>
+                """, unsafe_allow_html=True)
+
+
+                bin_swing_times_s = hr_df.attrs.get("bin_swing_times_s", None)
+
+                st.plotly_chart(
+                    plot_hr_trend_deviation(
+                        hr_df,
+                        swing_times_s=bin_swing_times_s,
+                        pre_window_s=3.0
+                    ),
+                    use_container_width=True,
+                    theme=None,
+                    key="hr_trend_with_bin_swing_markers"
+                )
+
+                if not pre_swing_hr_df.empty:
+                    st.markdown("---")
+                    st.markdown('<div class="section-title">Local Pre-Swing HR Check</div>', unsafe_allow_html=True)
+
+                    st.markdown("""
+                    <div class="formula-box">
+                        The yellow areas in the HR graph represent the 3 seconds before each detected swing.
+                        The table below shows the local HR used by the app to decide whether to display the
+                        relax-and-breathe advice.
+                    </div>
+                    """, unsafe_allow_html=True)
+
+                    st.dataframe(pre_swing_hr_df, use_container_width=True)
+
+                    csv_pre_swing_hr = pre_swing_hr_df.to_csv(index=False).encode("utf-8")
+
+                    st.download_button(
+                        "Download local pre-swing HR",
+                        data=csv_pre_swing_hr,
+                        file_name="local_pre_swing_hr.csv",
+                        mime="text/csv"
+                    )
+
+                hr_mean_session = hr_df["hr"].mean()
+                hr_std_session = hr_df["hr"].std()
+                rmssd_session = hr_df["rmssd"].mean()
+
+                csv_hr = hr_df.to_csv(index=False).encode("utf-8")
+
+                st.download_button(
+                    "Download HR results",
+                    data=csv_hr,
+                    file_name="hr_trend_results.csv",
+                    mime="text/csv"
+                )
+                if "ecg_raw" in hr_df.attrs and "ecg_filtered" in hr_df.attrs and "r_peaks" in hr_df.attrs:
+
+                    ecg_raw = hr_df.attrs["ecg_raw"]
+                    ecg_filtered = hr_df.attrs["ecg_filtered"]
+                    r_peaks = hr_df.attrs["r_peaks"]
+
+                    ecg_export_df = pd.DataFrame({
+                        "sample": np.arange(len(ecg_raw)),
+                        "time_s": np.arange(len(ecg_raw)) / FS_ECG,
+                        "ecg_raw": ecg_raw,
+                        "ecg_filtered_5_20": ecg_filtered
+                    })
+
+                    ecg_export_df["r_peak"] = 0
+                    ecg_export_df.loc[r_peaks, "r_peak"] = 1
+
+                    csv_ecg = ecg_export_df.to_csv(index=False).encode("utf-8")
+
+                    st.download_button(
+                        "Download ECG raw + filtered + R-peaks",
+                        data=csv_ecg,
+                        file_name="ecg_raw_filtered_rpeaks.csv",
+                        mime="text/csv"
+                    )
+                st.markdown(f"""
+                <div class="formula-box">
+                    <b>Mean HR:</b> {hr_mean_session:.1f} bpm<br>
+                    <b>HR standard deviation:</b> {hr_std_session:.1f} bpm<br>
+                    <b>Global RMSSD:</b> {rmssd_session:.1f} ms<br>
+                    <b>Note:</b> HR is displayed on its own ECG time axis and is not synchronized with the IMU signals.
+                </div>
+                """, unsafe_allow_html=True)
+
+
 
             # ============================================================
             # INTEGRATED INTERPRETATION
@@ -3547,106 +4469,6 @@ if data_source == "Upload files manually":
             </div>
             </div>
             """, unsafe_allow_html=True)
-
-            
-
-           
-
-            if hr_df is not None:
-                st.markdown("---")
-                st.markdown('<div class="section-title">Heart Rate Trend During Session</div>', unsafe_allow_html=True)
-
-                st.markdown("""
-                <div class="formula-box">
-                    The ECG .bin file is processed independently from the IMU signals.
-                    Swing markers on this graph are detected from the acceleration channels of the same .bin file,
-                    using the acceleration direction change pattern positive → negative → positive.
-                    The graph shows the beat-by-beat HR trend during the session, the mean HR,
-                    the ±1 SD variability band and the HR points that deviate more than one standard deviation.
-                </div>
-                """, unsafe_allow_html=True)
-
-
-                bin_swing_times_s = hr_df.attrs.get("bin_swing_times_s", None)
-
-                st.plotly_chart(
-                    plot_hr_trend_deviation(
-                        hr_df,
-                        swing_times_s=bin_swing_times_s,
-                        pre_window_s=3.0
-                    ),
-                    use_container_width=True,
-                    key="hr_trend_with_bin_swing_markers"
-                )
-
-                if not pre_swing_hr_df.empty:
-                    st.markdown("---")
-                    st.markdown('<div class="section-title">Local Pre-Swing HR Check</div>', unsafe_allow_html=True)
-
-                    st.markdown("""
-                    <div class="formula-box">
-                        The yellow areas in the HR graph represent the 3 seconds before each detected swing.
-                        The table below shows the local HR used by the app to decide whether to display the
-                        relax-and-breathe advice.
-                    </div>
-                    """, unsafe_allow_html=True)
-
-                    st.dataframe(pre_swing_hr_df, use_container_width=True)
-
-                    csv_pre_swing_hr = pre_swing_hr_df.to_csv(index=False).encode("utf-8")
-
-                    st.download_button(
-                        "Download local pre-swing HR",
-                        data=csv_pre_swing_hr,
-                        file_name="local_pre_swing_hr.csv",
-                        mime="text/csv"
-                    )
-
-                hr_mean_session = hr_df["hr"].mean()
-                hr_std_session = hr_df["hr"].std()
-                rmssd_session = hr_df["rmssd"].mean()
-
-                csv_hr = hr_df.to_csv(index=False).encode("utf-8")
-
-                st.download_button(
-                    "Download HR results",
-                    data=csv_hr,
-                    file_name="hr_trend_results.csv",
-                    mime="text/csv"
-                )
-                if "ecg_raw" in hr_df.attrs and "ecg_filtered" in hr_df.attrs and "r_peaks" in hr_df.attrs:
-
-                    ecg_raw = hr_df.attrs["ecg_raw"]
-                    ecg_filtered = hr_df.attrs["ecg_filtered"]
-                    r_peaks = hr_df.attrs["r_peaks"]
-
-                    ecg_export_df = pd.DataFrame({
-                        "sample": np.arange(len(ecg_raw)),
-                        "time_s": np.arange(len(ecg_raw)) / FS_ECG,
-                        "ecg_raw": ecg_raw,
-                        "ecg_filtered_5_20": ecg_filtered
-                    })
-
-                    ecg_export_df["r_peak"] = 0
-                    ecg_export_df.loc[r_peaks, "r_peak"] = 1
-
-                    csv_ecg = ecg_export_df.to_csv(index=False).encode("utf-8")
-
-                    st.download_button(
-                        "Download ECG raw + filtered + R-peaks",
-                        data=csv_ecg,
-                        file_name="ecg_raw_filtered_rpeaks.csv",
-                        mime="text/csv"
-                    )
-                st.markdown(f"""
-                <div class="formula-box">
-                    <b>Mean HR:</b> {hr_mean_session:.1f} bpm<br>
-                    <b>HR standard deviation:</b> {hr_std_session:.1f} bpm<br>
-                    <b>Global RMSSD:</b> {rmssd_session:.1f} ms<br>
-                    <b>Note:</b> HR is displayed on its own ECG time axis and is not synchronized with the IMU signals.
-                </div>
-                """, unsafe_allow_html=True)
-
             # ============================================================
             # SAMPLING AND FILTERING
             # ============================================================
@@ -3682,10 +4504,226 @@ if data_source == "Upload files manually":
         """, unsafe_allow_html=True)
 
 # ============================================================
+# SESSION COMPARISON PAGE
+# ============================================================
+
+elif st.session_state.page == "Session Comparison":
+
+    st.markdown("""
+    <div class="hero">
+        <div class="hero-tag">Session comparison</div>
+        <div class="hero-title">Compare Training Sessions</div>
+        <div class="hero-subtitle">
+            Compare rhythm, body–club coordination and physiological state across different training sessions.
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    if st.button("← Back to Home", key="back_home_from_comparison"):
+        go_to_page("Home")
+
+    st.markdown('<div class="section-title">Select sessions to compare</div>', unsafe_allow_html=True)
+
+    selected_sessions = st.multiselect(
+        "Choose two or more sessions",
+        list(PRELOADED_SESSIONS.keys()),
+        default=["Session 1", "Session 2"]
+    )
+
+    if len(selected_sessions) < 2:
+        st.info("Select at least two sessions to start the comparison.")
+        st.stop()
+
+    comparison_rows = []
+    swing_tables = {}
+
+    for session in selected_sessions:
+        summary, swing_df = compute_session_summary(
+            session_name=session,
+            fs=fs,
+            club_cutoff=club_cutoff,
+            sacral_cutoff=sacral_cutoff,
+            club_prominence=club_prominence
+        )
+
+        if summary is not None:
+            comparison_rows.append(summary)
+            swing_tables[session] = swing_df
+
+    if len(comparison_rows) < 2:
+        st.error("Not enough valid sessions were available for comparison.")
+        st.stop()
+
+    comparison_df = pd.DataFrame(comparison_rows)
+
+    st.markdown("""
+    <div class="formula-box">
+        This page compares the main outputs of different training sessions.
+        The objective is to understand whether the athlete improved, worsened or maintained
+        a similar behaviour in terms of rhythm, repeatability, body–club transfer and physiological state.
+    </div>
+    """, unsafe_allow_html=True)
+
+    # ============================================================
+    # SUMMARY TABLE
+    # ============================================================
+
+    st.markdown('<div class="section-title">Comparison Summary</div>', unsafe_allow_html=True)
+
+    st.dataframe(
+        comparison_df,
+        use_container_width=True,
+        hide_index=True
+    )
+
+    csv_comparison = comparison_df.to_csv(index=False).encode("utf-8")
+
+    st.download_button(
+        "Download session comparison results",
+        data=csv_comparison,
+        file_name="session_comparison_results.csv",
+        mime="text/csv"
+    )
+
+    # ============================================================
+    # COMPARISON PLOTS
+    # ============================================================
+
+    st.markdown("---")
+    st.markdown('<div class="section-title">Main Comparison Plots</div>', unsafe_allow_html=True)
+
+    c1, c2 = st.columns(2)
+
+    with c1:
+        st.plotly_chart(
+            plot_comparison_bar(
+                comparison_df,
+                "Mean Tempo Ratio",
+                "Mean Tempo Ratio across sessions",
+                "Mean Tempo Ratio"
+            ),
+            use_container_width=True,
+            theme=None
+        )
+
+    with c2:
+        st.plotly_chart(
+            plot_comparison_bar(
+                comparison_df,
+                "Mean Δt body-club [s]",
+                "Mean Body–Club Delay across sessions",
+                "Mean Δt [s]"
+            ),
+            use_container_width=True,
+            theme=None
+        )
+
+    c3, c4 = st.columns(2)
+
+    with c3:
+        st.plotly_chart(
+            plot_comparison_bar(
+                comparison_df,
+                "CV Tempo Ratio [%]",
+                "Rhythm Repeatability across sessions",
+                "CV Tempo Ratio [%]"
+            ),
+            use_container_width=True,
+            theme=None
+        )
+
+    with c4:
+        st.plotly_chart(
+            plot_comparison_bar(
+                comparison_df,
+                "Mean HR [bpm]",
+                "Mean Heart Rate across sessions",
+                "Mean HR [bpm]"
+            ),
+            use_container_width=True,
+            theme=None
+        )
+
+    # ============================================================
+    # AUTOMATIC COMPARISON INTERPRETATION
+    # ============================================================
+
+    st.markdown("---")
+    st.markdown('<div class="section-title">Integrated Comparison Interpretation</div>', unsafe_allow_html=True)
+
+    first = comparison_df.iloc[0]
+    last = comparison_df.iloc[-1]
+
+    tempo_change = last["Mean Tempo Ratio"] - first["Mean Tempo Ratio"]
+    delta_change = last["Mean Δt body-club [s]"] - first["Mean Δt body-club [s]"]
+    cv_change = last["CV Tempo Ratio [%]"] - first["CV Tempo Ratio [%]"]
+    hr_change = last["Mean HR [bpm]"] - first["Mean HR [bpm]"]
+
+    interpretation_text = ""
+
+    if abs(last["Mean Tempo Ratio"] - 3.0) < abs(first["Mean Tempo Ratio"] - 3.0):
+        interpretation_text += (
+            "The latest session shows a Tempo Ratio closer to the 3:1 reference, "
+            "suggesting an improvement in swing rhythm. "
+        )
+    else:
+        interpretation_text += (
+            "The latest session does not show a clear improvement in Tempo Ratio compared with the first session. "
+        )
+
+    if abs(last["Mean Δt body-club [s]"]) < abs(first["Mean Δt body-club [s]"]):
+        interpretation_text += (
+            "Body–club timing delay is lower in the latest session, which may indicate a better transfer "
+            "from body motion to club motion. "
+        )
+    else:
+        interpretation_text += (
+            "Body–club timing delay is not reduced in the latest session, so coordination should still be monitored. "
+        )
+
+    if last["CV Tempo Ratio [%]"] < first["CV Tempo Ratio [%]"]:
+        interpretation_text += (
+            "Rhythm repeatability also improved, because the coefficient of variation of Tempo Ratio decreased. "
+        )
+    else:
+        interpretation_text += (
+            "Rhythm repeatability did not clearly improve, because the coefficient of variation did not decrease. "
+        )
+
+    if not np.isnan(last["Mean HR [bpm]"]) and not np.isnan(first["Mean HR [bpm]"]):
+        if last["Mean HR [bpm]"] < first["Mean HR [bpm]"]:
+            interpretation_text += (
+                "The mean HR is lower in the latest session, suggesting a lower physiological activation during the test. "
+            )
+        else:
+            interpretation_text += (
+                "The mean HR is higher in the latest session, suggesting greater physiological activation that should be considered when interpreting the technical results. "
+            )
+
+    st.markdown(f"""
+    <div class="coach-advice-box">
+        <div class="coach-advice-title">Session-to-session interpretation</div>
+        <div class="coach-advice-text">
+            {interpretation_text}
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # ============================================================
+    # SWING TABLES
+    # ============================================================
+
+    st.markdown("---")
+    st.markdown('<div class="section-title">Swing-by-Swing Tables by Session</div>', unsafe_allow_html=True)
+
+    for session, swing_df in swing_tables.items():
+        with st.expander(f"{session} swing-by-swing results", expanded=False):
+            st.dataframe(swing_df, use_container_width=True)
+# ============================================================
 # METRICS EXPLANATION PAGE
 # ============================================================
 
-elif page == "Metrics Explanation":
+elif st.session_state.page == "Metrics Explanation":
 
     st.markdown("""
     <div class="hero">
@@ -3696,6 +4734,8 @@ elif page == "Metrics Explanation":
         </div>
     </div>
     """, unsafe_allow_html=True)
+    if st.button("← Back to Home", key="back_home_from_metrics"):
+        go_to_page("Home")
 
     st.markdown('<div class="section-title">1. Tempo Ratio</div>', unsafe_allow_html=True)
     st.markdown("""
